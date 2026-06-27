@@ -1,0 +1,2164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>St Joseph's Report Card Portal</title>
+<style>
+:root{
+  --navy:#1f3a5f;
+  --gold:#c8a24a;
+  --paper:#ffffff;
+  --line:#cccccc;
+  --text:#111111;
+  --red:#c0392b;
+  --green:#27ae60;
+  --light:#f4f6fa;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:Arial,sans-serif;background:#dde1e7;color:var(--text);min-height:100vh;}
+
+/* ── SCREENS ── */
+.screen{display:none;}
+.screen.active{display:block;}
+
+/* ════ LOGIN ════ */
+#loginScreen{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#1f3a5f 0%,#2c5282 60%,#c8a24a 100%);
+}
+.login-box{
+  background:#fff;border-radius:12px;padding:40px 36px;width:360px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.25);text-align:center;
+}
+.login-logo{
+  width:80px;height:80px;border-radius:50%;
+  background:radial-gradient(circle at 30% 30%,#c8a24a,#1f3a5f);
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:11px;font-weight:bold;margin:0 auto 16px;
+  line-height:1.3;
+}
+.login-box h1{font-size:18px;color:var(--navy);margin-bottom:4px;}
+.login-box p{font-size:12px;color:#666;margin-bottom:24px;}
+.login-box input{
+  width:100%;border:1px solid #ccc;border-radius:6px;padding:10px 12px;
+  font-size:14px;margin-bottom:14px;font-family:Arial,sans-serif;
+}
+.login-box input:focus{outline:none;border-color:var(--navy);}
+.btn-login{
+  width:100%;background:var(--navy);color:#fff;border:none;border-radius:6px;
+  padding:11px;font-size:15px;cursor:pointer;font-family:Arial,sans-serif;
+}
+.btn-login:hover{background:#2c5282;}
+.login-err{color:var(--red);font-size:12px;margin-top:8px;min-height:16px;}
+.login-tab.active{background:var(--navy)!important;color:#fff!important;}
+
+/* ════ MAIN LAYOUT ════ */
+#portalScreen{min-height:100vh;display:flex;flex-direction:column;}
+.topbar{
+  background:var(--navy);color:#fff;padding:0 20px;
+  display:flex;align-items:center;justify-content:space-between;
+  height:52px;position:sticky;top:0;z-index:30;
+}
+.topbar-left{display:flex;align-items:center;gap:14px;}
+.topbar h1{font-size:15px;font-weight:bold;}
+.topbar .role-badge{
+  background:var(--gold);color:#1f3a5f;padding:3px 10px;
+  border-radius:12px;font-size:11px;font-weight:bold;
+}
+.btn-logout{
+  background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.35);
+  color:#fff;border-radius:5px;padding:6px 12px;font-size:12px;cursor:pointer;
+}
+.btn-logout:hover{background:rgba(255,255,255,0.25);}
+
+/* ── NAV TABS ── */
+.nav-tabs{
+  background:#17304f;display:flex;overflow-x:auto;padding:0 16px;
+  gap:2px;border-bottom:2px solid var(--gold);
+}
+.nav-tab{
+  padding:10px 16px;font-size:13px;color:rgba(255,255,255,0.7);
+  cursor:pointer;white-space:nowrap;border-bottom:3px solid transparent;
+  transition:all .2s;
+}
+.nav-tab:hover{color:#fff;}
+.nav-tab.active{color:#fff;border-bottom-color:var(--gold);font-weight:bold;}
+
+/* ── PANEL CONTENT ── */
+.panel-content{padding:24px 20px;max-width:1100px;margin:0 auto;width:100%;}
+
+/* ── CARDS / STATS ── */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:24px;}
+.stat-card{
+  background:#fff;border-radius:8px;padding:18px 16px;text-align:center;
+  box-shadow:0 2px 8px rgba(0,0,0,0.07);border-left:4px solid var(--navy);
+}
+.stat-card .num{font-size:32px;font-weight:bold;color:var(--navy);}
+.stat-card .lbl{font-size:12px;color:#666;margin-top:4px;}
+
+/* ── TABLES ── */
+.data-table{width:100%;border-collapse:collapse;font-size:13px;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.07);}
+.data-table th{background:var(--navy);color:#fff;padding:10px 12px;text-align:left;}
+.data-table td{border-bottom:1px solid #eee;padding:9px 12px;}
+.data-table tr:last-child td{border-bottom:none;}
+.data-table tr:hover td{background:#f8f9fb;}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:bold;}
+.badge-green{background:#d4f5e2;color:#1a7a40;}
+.badge-orange{background:#fef3cd;color:#856404;}
+.badge-red{background:#fde8e8;color:#a33;}
+.badge-grey{background:#eee;color:#666;}
+
+/* ── SECTION HEADER ── */
+.section-hd{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:14px;flex-wrap:wrap;gap:8px;
+}
+.section-hd h2{font-size:16px;color:var(--navy);}
+.btn-primary{background:var(--navy);color:#fff;border:none;border-radius:5px;padding:8px 14px;font-size:13px;cursor:pointer;}
+.btn-primary:hover{background:#2c5282;}
+.btn-secondary{background:#fff;color:var(--navy);border:1px solid var(--navy);border-radius:5px;padding:7px 13px;font-size:13px;cursor:pointer;}
+.btn-secondary:hover{background:#f0f4ff;}
+.btn-danger{background:var(--red);color:#fff;border:none;border-radius:5px;padding:5px 10px;font-size:12px;cursor:pointer;}
+.btn-sm{padding:4px 9px;font-size:11px;}
+
+/* ── MODAL ── */
+.modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:100;align-items:center;justify-content:center;}
+.modal-backdrop.open{display:flex;}
+.modal{background:#fff;border-radius:10px;padding:26px 28px;width:480px;max-height:85vh;overflow-y:auto;box-shadow:0 12px 36px rgba(0,0,0,.25);}
+.modal h2{font-size:17px;color:var(--navy);margin-bottom:16px;}
+.form-row{margin-bottom:14px;}
+.form-row label{display:block;font-size:12px;font-weight:bold;color:#555;margin-bottom:5px;}
+.form-row input,.form-row select,.form-row textarea{
+  width:100%;border:1px solid #ccc;border-radius:5px;padding:8px 10px;
+  font-size:13px;font-family:Arial,sans-serif;
+}
+.form-row input:focus,.form-row select:focus,.form-row textarea:focus{outline:none;border-color:var(--navy);}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px;}
+
+/* ── REPORT CARD BUILDER (embedded) ── */
+#rcBuilder{background:var(--light);padding:16px;}
+.toolbar{max-width:820px;margin:0 auto 14px auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
+.toolbar h1{margin:0;font-size:16px;color:var(--navy);}
+.toolbar .actions{display:flex;flex-wrap:wrap;gap:6px;}
+.toolbar .actions button{font-size:12px;padding:7px 12px;border:1px solid var(--navy);background:var(--navy);color:#fff;border-radius:4px;cursor:pointer;white-space:nowrap;}
+.toolbar .actions button.secondary{background:#fff;color:var(--navy);}
+.toolbar .actions button.gmail{background:#d93025;border-color:#d93025;}
+.toolbar .actions button.whatsapp{background:#25d366;border-color:#25d366;}
+.toolbar .actions button#downloadBtn{background:#fff;color:var(--navy);}
+.toolbar .actions button:disabled{opacity:0.6;cursor:wait;}
+.sheet{max-width:820px;margin:0 auto;background:var(--paper);border:1px solid #bbb;box-shadow:0 2px 12px rgba(0,0,0,0.12);padding:32px 40px 36px;}
+.letterhead{text-align:center;margin-bottom:10px;}
+.school-name-input{border:none;background:transparent;text-align:center;font-weight:bold;font-size:17px;width:100%;color:var(--text);font-family:Arial,sans-serif;}
+.school-sub-input{border:none;background:transparent;text-align:center;font-size:12px;width:100%;color:#333;font-family:Arial,sans-serif;}
+.school-name-input:focus,.school-sub-input:focus{outline:none;border-bottom:1px dashed #aaa;}
+.crest-wrap{margin:8px auto;width:80px;height:80px;cursor:pointer;position:relative;}
+.crest-wrap img{width:80px;height:80px;object-fit:contain;}
+.crest-placeholder{width:80px;height:80px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#c8a24a,#1f3a5f);display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;text-align:center;font-weight:bold;line-height:1.2;font-family:Arial,sans-serif;}
+.crest-wrap:hover::after{content:"Change logo";position:absolute;inset:0;border-radius:50%;background:rgba(0,0,0,0.5);color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center;font-family:Arial,sans-serif;}
+.student-info{margin:14px 0 10px;font-size:13px;}
+.si-row{display:flex;gap:0;margin-bottom:4px;align-items:baseline;}
+.si-label{font-weight:bold;min-width:130px;font-size:13px;}
+.si-value{border:none;border-bottom:1px solid var(--line);background:transparent;font-size:13px;font-family:Arial,sans-serif;color:var(--text);flex:1;padding:2px 4px;}
+.si-value:focus{outline:none;border-bottom:1px solid var(--navy);}
+.si-two-col{display:grid;grid-template-columns:1fr 1fr;gap:4px 20px;}
+table.grades{width:100%;border-collapse:collapse;margin:14px 0 0;font-size:13px;}
+table.grades th{background:#c0c0c0;text-align:center;padding:7px 8px;font-weight:bold;font-size:13px;border:1px solid #999;}
+table.grades td{border:1px solid #ccc;padding:5px 8px;}
+table.grades td:not(:first-child){text-align:center;}
+table.grades input,table.grades select{width:100%;border:none;background:transparent;font-family:Arial,sans-serif;font-size:13px;text-align:inherit;color:var(--text);}
+table.grades input:focus,table.grades select:focus{outline:none;}
+.row-del{border:none;background:none;color:#a33;cursor:pointer;font-size:12px;}
+.add-row-btn{font-size:12px;padding:5px 10px;border:1px dashed var(--navy);background:transparent;color:var(--navy);cursor:pointer;border-radius:4px;margin:6px 0 0 0;}
+.result-bar{display:flex;justify-content:space-between;align-items:center;margin:14px 0 18px;font-size:13px;gap:10px;flex-wrap:wrap;}
+.result-bar .rb-field{display:flex;align-items:center;gap:6px;}
+.rb-label{font-weight:bold;}
+.rb-input{border:none;border-bottom:1px solid var(--line);background:transparent;font-size:13px;font-family:Arial,sans-serif;padding:2px 4px;min-width:100px;}
+.rb-input:focus{outline:none;border-bottom:1px solid var(--navy);}
+#avgDisplay{font-weight:bold;}
+.comments{margin-bottom:20px;}
+.comment-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;font-size:13px;}
+.comment-row .clabel{font-weight:bold;min-width:180px;padding-top:3px;font-size:13px;}
+.comment-row textarea{flex:1;border:1px solid var(--line);padding:6px;font-family:Arial,sans-serif;font-size:13px;resize:vertical;min-height:46px;background:#fafafa;}
+.comment-row textarea:focus{outline:none;border-color:var(--navy);}
+.signoff{margin-top:24px;display:flex;justify-content:flex-start;gap:30px;flex-wrap:wrap;}
+.sign-block{font-size:13px;}
+.sign-label{font-weight:bold;margin-bottom:6px;font-size:13px;}
+.sign-area{width:220px;height:80px;border:1px dashed #aaa;background:#fafafa;display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;overflow:hidden;}
+.sign-area img{max-width:100%;max-height:100%;object-fit:contain;}
+.sign-area .sign-placeholder{font-size:11px;color:#aaa;text-align:center;pointer-events:none;}
+.sign-area:hover::after{content:"Click to upload / change";position:absolute;inset:0;background:rgba(0,0,0,0.4);color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center;font-family:Arial,sans-serif;}
+.sign-caption{font-size:11px;color:#555;margin-top:4px;text-align:center;}
+.sign-text{width:220px;border:none;border-bottom:1px solid #aaa;background:transparent;font-family:'Brush Script MT',cursive;font-size:22px;color:var(--navy);text-align:center;display:block;margin-top:4px;}
+.sign-text:focus{outline:none;}
+.footer-date{text-align:right;font-size:11px;color:#888;margin-top:16px;}
+.table-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.pdf-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:200;display:none;align-items:center;justify-content:center;color:#fff;font-family:Arial,sans-serif;font-size:14px;}
+.pdf-overlay.open{display:flex;}
+body.pdf-mode .del-col,.body.pdf-mode .add-row-btn{display:none!important;}
+.scale-row{display:grid;grid-template-columns:1fr 70px 12px 70px 28px;gap:6px;align-items:center;margin-bottom:6px;}
+.scale-row input{font-size:13px;padding:5px 6px;border:1px solid var(--line);border-radius:4px;width:100%;}
+.scale-row span{text-align:center;color:#999;font-size:12px;}
+.scale-row button{border:none;background:none;color:#a33;cursor:pointer;font-size:14px;}
+.btn-add-scale{font-size:12px;border:1px dashed var(--navy);background:transparent;color:var(--navy);padding:5px 10px;border-radius:4px;cursor:pointer;margin-top:6px;}
+.saved-item{display:flex;justify-content:space-between;align-items:center;padding:9px 10px;border:1px solid var(--line);border-radius:5px;margin-bottom:7px;font-size:13px;}
+.saved-item .info{cursor:pointer;flex:1;}
+.saved-item .info strong{color:var(--navy);}
+.saved-item .meta{font-size:11px;color:#888;}
+.saved-item button{border:none;background:none;color:#a33;cursor:pointer;font-size:13px;margin-left:8px;}
+.empty-state{color:#888;font-size:13px;text-align:center;padding:18px 0;}
+#gmailModal .gmail-field{margin-bottom:12px;}
+#gmailModal .gmail-field label{display:block;font-size:12px;font-weight:bold;color:#444;margin-bottom:4px;}
+#gmailModal .gmail-field input,#gmailModal .gmail-field textarea{width:100%;border:1px solid var(--line);border-radius:4px;padding:7px 8px;font-size:13px;font-family:Arial,sans-serif;}
+#gmailModal .gmail-field textarea{min-height:80px;resize:vertical;}
+.btn-plain{background:#fff;color:var(--navy);border:1px solid var(--navy);border-radius:4px;padding:7px 14px;font-size:13px;cursor:pointer;}
+.btn-prim{background:var(--navy);color:#fff;border:none;border-radius:4px;padding:7px 14px;font-size:13px;cursor:pointer;}
+
+/* toast */
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 18px;border-radius:6px;font-size:13px;font-family:Arial,sans-serif;z-index:300;opacity:0;pointer-events:none;transition:opacity .25s ease;max-width:90vw;text-align:center;box-shadow:0 4px 14px rgba(0,0,0,.3);}
+.toast.show{opacity:1;}
+
+/* print */
+@media print{
+  .topbar,.nav-tabs,#rcBuilder .toolbar,.modal-backdrop,#logoInput,#principalSigInput,#teacherSigInput,.add-row-btn,.row-del,.pdf-overlay,.del-col{display:none!important;}
+  .sheet{box-shadow:none;border:none;max-width:100%;padding:20px 36px;}
+  table.grades input,table.grades select,.si-value,.school-name-input,.school-sub-input,.rb-input,.comment-row textarea{border:none!important;}
+  .sign-area{border:none;}
+  body{background:#fff;}
+}
+
+/* mobile */
+@media(max-width:700px){
+  .sheet{padding:16px 14px 20px;}
+  .crest-wrap,.crest-wrap img,.crest-placeholder{width:64px;height:64px;}
+  .si-two-col{grid-template-columns:1fr;}
+  table.grades{font-size:12px;min-width:560px;}
+  .result-bar{flex-direction:column;align-items:flex-start;gap:8px;}
+  .comment-row{flex-direction:column;gap:4px;}
+  .signoff{flex-direction:column;}
+  .modal{width:92vw;max-width:420px;padding:18px 16px;}
+}
+
+/* filter row */
+.filter-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
+.filter-row input,.filter-row select{border:1px solid #ccc;border-radius:5px;padding:7px 10px;font-size:13px;font-family:Arial,sans-serif;}
+.filter-row input:focus,.filter-row select:focus{outline:none;border-color:var(--navy);}
+
+/* score entry */
+.score-entry-table{width:100%;border-collapse:collapse;font-size:13px;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.07);}
+.score-entry-table th{background:var(--navy);color:#fff;padding:9px 12px;text-align:left;}
+.score-entry-table td{border-bottom:1px solid #eee;padding:8px 12px;}
+.score-entry-table input{width:70px;border:1px solid #ccc;border-radius:4px;padding:5px 7px;font-size:13px;text-align:center;}
+.score-entry-table input:focus{outline:none;border-color:var(--navy);}
+
+.print-btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+</style>
+</head>
+<body>
+
+<!-- ══════════ LOGIN ══════════ -->
+<div id="loginScreen" class="screen active">
+  <div class="login-box">
+    <div class="login-logo">ST<br>JOSEPH'S</div>
+    <h1>St Joseph's Portal</h1>
+    <p>Report Card Management System</p>
+    <div style="display:flex;border-radius:6px;overflow:hidden;border:1px solid #ccc;margin-bottom:16px;">
+      <button id="staffTabBtn" type="button" class="login-tab active" onclick="setLoginMode('staff')" style="flex:1;padding:9px;font-size:12px;border:none;background:var(--navy);color:#fff;cursor:pointer;">Staff</button>
+      <button id="studentTabBtn" type="button" class="login-tab" onclick="setLoginMode('student')" style="flex:1;padding:9px;font-size:12px;border:none;background:#eee;color:#444;cursor:pointer;">Student</button>
+    </div>
+    <div id="staffLoginFields">
+      <input type="text" id="loginUser" placeholder="Username" autocomplete="username">
+      <input type="password" id="loginPass" placeholder="Password" autocomplete="current-password">
+    </div>
+    <div id="studentLoginFields" style="display:none;">
+      <input type="text" id="loginCode" placeholder="Your login code (e.g. SJ25-0147)" autocomplete="off" style="text-transform:uppercase;">
+    </div>
+    <button class="btn-login" onclick="doLogin()">Sign In</button>
+    <div class="login-err" id="loginErr"></div>
+  </div>
+</div>
+
+<!-- ══════════ STUDENT PORTAL ══════════ -->
+<div id="studentPortalScreen" class="screen">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div style="width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#c8a24a,#1f3a5f);display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:bold;line-height:1.2;text-align:center;">ST<br>JO</div>
+      <h1>My Report Card</h1>
+      <span class="role-badge">Student</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span id="studentTopName" style="font-size:13px;opacity:.8;"></span>
+      <button class="btn-logout" onclick="doLogout()">Sign Out</button>
+    </div>
+  </div>
+  <div class="panel-content" id="studentPanelContent"></div>
+</div>
+
+<!-- ══════════ PORTAL ══════════ -->
+<div id="portalScreen" class="screen">
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div style="width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#c8a24a,#1f3a5f);display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:bold;line-height:1.2;text-align:center;">ST<br>JO</div>
+      <h1>St Joseph's Report Card Portal</h1>
+      <span class="role-badge" id="topRoleBadge"></span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span id="topUserName" style="font-size:13px;opacity:.8;"></span>
+      <button class="btn-logout" onclick="doLogout()">Sign Out</button>
+    </div>
+  </div>
+
+  <!-- Nav tabs -->
+  <div class="nav-tabs" id="navTabs"></div>
+
+  <!-- Panel content -->
+  <div class="panel-content" id="panelContent"></div>
+</div>
+
+<!-- Hidden file inputs for report card builder -->
+<input type="file" id="logoInput" accept="image/*" style="display:none" onchange="handleLogoUpload(event)">
+<input type="file" id="principalSigInput" accept="image/*" style="display:none" onchange="handleSigUpload(event,'principal')">
+<input type="file" id="settingsSigInput" accept="image/*" style="display:none" onchange="handleSettingsSigUpload(event)">
+
+<!-- ══ PDF Generating Overlay ══ -->
+<div class="pdf-overlay" id="pdfOverlay"><div>Generating PDF…</div></div>
+
+<!-- ══ Toast ══ -->
+<div id="toast" class="toast"></div>
+
+<!-- ══ Generic Confirm Modal ══ -->
+<div class="modal-backdrop" id="confirmModalBackdrop">
+  <div class="modal" style="width:320px;max-width:92vw;">
+    <p id="confirmMessage" style="font-size:14px;margin:0 0 16px;"></p>
+    <div class="modal-actions">
+      <button class="btn-plain" onclick="closeConfirmModal()">Cancel</button>
+      <button class="btn-prim" id="confirmYesBtn">Yes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ User Modal ══ -->
+<div class="modal-backdrop" id="userModalBackdrop">
+  <div class="modal">
+    <h2 id="userModalTitle">Add User</h2>
+    <div class="form-row"><label>Full Name</label><input id="uFullName" placeholder="e.g. John Doe"></div>
+    <div class="form-row"><label>Username</label><input id="uUsername" placeholder="e.g. teacher3"></div>
+    <div class="form-row"><label>Password</label><input id="uPassword" type="password" placeholder="Password"></div>
+    <div class="form-row"><label>Role</label>
+      <select id="uRole">
+        <option value="admin">Admin / Principal</option>
+        <option value="classteacher">Class Teacher</option>
+        <option value="subjectteacher">Subject Teacher</option>
+        <option value="viewer">View Only</option>
+      </select>
+    </div>
+    <div class="form-row" id="uClassRow" style="display:none;"><label>Assigned Class</label>
+      <select id="uClass"></select>
+    </div>
+    <div class="form-row" id="uSubjectRow" style="display:none;"><label>Assigned Subject</label>
+      <input id="uSubject" placeholder="e.g. Mathematics">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-plain" onclick="closeModal('userModalBackdrop')">Cancel</button>
+      <button class="btn-prim" onclick="saveUser()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Class Modal ══ -->
+<div class="modal-backdrop" id="classModalBackdrop">
+  <div class="modal">
+    <h2 id="classModalTitle">Add Class</h2>
+    <div class="form-row"><label>Class Name</label><input id="cName" placeholder="e.g. Grade 10 Art Science"></div>
+    <div class="form-row"><label>Assigned Class Teacher</label>
+      <select id="cTeacher"><option value="">-- None --</option></select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-plain" onclick="closeModal('classModalBackdrop')">Cancel</button>
+      <button class="btn-prim" onclick="saveClass()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Student Modal ══ -->
+<div class="modal-backdrop" id="studentModalBackdrop">
+  <div class="modal">
+    <h2 id="studentModalTitle">Add Student</h2>
+    <div class="form-row"><label>Full Name</label><input id="stName" placeholder="e.g. BINTA SAWO"></div>
+    <div class="form-row"><label>Admission No</label><input id="stAdm" placeholder="e.g. SJ25-037"></div>
+    <div class="form-row"><label>Class</label>
+      <select id="stClass"></select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-plain" onclick="closeModal('studentModalBackdrop')">Cancel</button>
+      <button class="btn-prim" onclick="saveStudent()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Principal Comment Modal ══ -->
+<div class="modal-backdrop" id="pcModalBackdrop">
+  <div class="modal">
+    <h2>Principal's Comment</h2>
+    <p style="font-size:12px;color:#666;margin-bottom:12px;" id="pcStudentLabel"></p>
+    <div class="form-row"><label>Comment</label>
+      <textarea id="pcText" rows="4" placeholder="Enter principal's comment..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-plain" onclick="closeModal('pcModalBackdrop')">Cancel</button>
+      <button class="btn-prim" onclick="savePrincipalComment()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Grading Scale Modal ══ -->
+<div class="modal-backdrop" id="scaleModalBackdrop">
+  <div class="modal">
+    <h2>Grading System</h2>
+    <p class="hint" style="font-size:12px;color:#777;margin-bottom:12px;">Define grade labels and score ranges (%).</p>
+    <div id="scaleRows"></div>
+    <button class="btn-add-scale" onclick="addScaleRow()">+ Add Grade Level</button>
+    <div class="modal-actions" style="margin-top:14px;">
+      <button class="btn-plain" onclick="closeModal('scaleModalBackdrop')">Cancel</button>
+      <button class="btn-prim" onclick="saveScale()">Save & Apply</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Settings Modal (Principal Signature) ══ -->
+<div class="modal-backdrop" id="settingsModalBackdrop">
+  <div class="modal">
+    <h2>🖋 Settings</h2>
+    <p style="font-size:12px;color:#777;margin-bottom:14px;">Upload the principal's signature once — it appears on every report card automatically.</p>
+    <div class="sign-block" style="margin-bottom:14px;">
+      <div class="sign-label">Principal's Signature:</div>
+      <div class="sign-area" id="settingsSigArea" onclick="document.getElementById('settingsSigInput').click()" title="Click to upload">
+        <img id="settingsSigImg" src="" style="display:none;">
+        <div class="sign-placeholder" id="settingsSigPlaceholder">Click to upload<br>signature image</div>
+      </div>
+    </div>
+    <div class="form-row">
+      <label>School Name</label>
+      <input id="cfgSchoolName" placeholder="School name">
+    </div>
+    <div class="form-row">
+      <label>School Address</label>
+      <input id="cfgSchoolAddress" placeholder="Address">
+    </div>
+    <div class="form-row">
+      <label>Contact</label>
+      <input id="cfgSchoolContact" placeholder="Tel / Email">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-plain" onclick="clearGlobalSig()">Remove Signature</button>
+      <button class="btn-prim" onclick="saveSettings()">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Saved Reports Modal ══ -->
+<div class="modal-backdrop" id="loadModalBackdrop">
+  <div class="modal">
+    <h2>Saved Reports</h2>
+    <p style="font-size:12px;color:#777;margin-bottom:12px;">Click a report to load it.</p>
+    <div id="savedReportsList"></div>
+    <div class="modal-actions">
+      <button class="btn-plain" onclick="closeModal('loadModalBackdrop')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Gmail Modal ══ -->
+<div class="modal-backdrop" id="gmailModalBackdrop">
+  <div class="modal" id="gmailModal">
+    <h2>✉ Send via Gmail</h2>
+    <p style="font-size:12px;color:#777;margin-bottom:12px;">Clicking "Open in Gmail" will download the report as a PDF and launch Gmail with a pre-filled message — attach the downloaded PDF manually.</p>
+    <div class="gmail-field"><label>Recipient Email</label><input id="gmailTo" type="email" placeholder="parent@example.com"></div>
+    <div class="gmail-field"><label>CC (optional)</label><input id="gmailCc" type="email" placeholder="admin@school.gm"></div>
+    <div class="gmail-field"><label>Subject</label><input id="gmailSubject" value=""></div>
+    <div class="gmail-field"><label>Message Body</label><textarea id="gmailBody" rows="6"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn-plain" onclick="closeModal('gmailModalBackdrop')">Cancel</button>
+      <button class="btn-prim" onclick="openGmail()">Open in Gmail ↗</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ WhatsApp Modal ══ -->
+<div class="modal-backdrop" id="whatsappModalBackdrop">
+  <div class="modal">
+    <h2>🟢 Send via WhatsApp</h2>
+    <p style="font-size:12px;color:#777;margin-bottom:12px;">Downloads the PDF and opens WhatsApp. Attach the PDF manually using the 📎 icon in WhatsApp.</p>
+    <div class="gmail-field"><label>Phone Number (with country code, optional)</label><input id="waPhone" type="tel" placeholder="e.g. 2207123456"></div>
+    <div class="gmail-field"><label>Message</label><textarea id="waBody" rows="5"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn-plain" onclick="closeModal('whatsappModalBackdrop')">Cancel</button>
+      <button class="btn-prim" onclick="sendWhatsApp()">Download PDF & Open WhatsApp ↗</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+/* ═══════════════════════════════════════════════════
+   FIREBASE INIT
+═══════════════════════════════════════════════════ */
+const firebaseConfig = {
+  apiKey: "AIzaSyDryGE-CetxfhVIc27-3ggxdsh2EM68YNM",
+  authDomain: "stjosephs-reportcards-3a4d1.firebaseapp.com",
+  projectId: "stjosephs-reportcards-3a4d1",
+  storageBucket: "stjosephs-reportcards-3a4d1.firebasestorage.app",
+  messagingSenderId: "202618708901",
+  appId: "1:202618708901:web:d8a97801a5f9a0a79fbe4c"
+};
+const STAFF_DOMAIN='stjosephs.local';
+const STUDENT_DOMAIN='students.stjosephs.local';
+const CODE_SALT='sj-2026-rc';
+
+firebase.initializeApp(firebaseConfig);
+const auth=firebase.auth();
+const db=firebase.firestore();
+
+/* A secondary, isolated auth instance used ONLY for creating other users'
+   accounts (e.g. admin creating a teacher or student login) without
+   disturbing the currently signed-in session. */
+function getSecondaryAuth(){
+  let secApp=firebase.apps.find(a=>a.name==='Secondary');
+  if(!secApp) secApp=firebase.initializeApp(firebaseConfig,'Secondary');
+  return secApp.auth();
+}
+
+function studentPassword(code){
+  // Deterministic password derived from the code itself, so the student
+  // only ever needs to remember/type their one unique code.
+  return code.trim().toUpperCase()+'-'+CODE_SALT;
+}
+
+/* ═══════════════════════════════════════════════════
+   DATA LAYER  (Cloud Firestore — synced live, multi-device)
+═══════════════════════════════════════════════════ */
+const K = {
+  classes:'sj_classes_v1',
+  scores:'sj_scores_v1',
+  reportCards:'sj_reportCards_v1',
+  principalComments:'sj_pc_v1',
+  teacherComments:'sj_tc_v1',
+  settings:'sj_settings_v1',
+  globalSig:'sj_globalSig_v1',
+  studentSubjects:'sj_studentSubjects_v1'
+};
+
+// In-memory cache. Hydrated from Firestore via onSnapshot listeners below,
+// and kept backward-compatible with the rest of the app, which reads/writes
+// through ls()/lsSet() exactly as it did with localStorage.
+const _cache={};
+let _cacheReady=false;
+let _onCacheUpdate=null; // wired up once the portal is showing, to trigger re-renders
+
+function ls(key){ return _cache[key]===undefined?null:_cache[key]; }
+function lsSet(key,val){
+  _cache[key]=val;
+  db.collection('appdata').doc(key).set({value:JSON.stringify(val)},{merge:true}).catch(e=>console.error('save error',key,e));
+}
+
+function watchAppData(){
+  Object.values(K).forEach(key=>{
+    db.collection('appdata').doc(key).onSnapshot(snap=>{
+      const data=snap.exists?snap.data():null;
+      let val=null;
+      if(data&&data.value!==undefined){ try{val=JSON.parse(data.value);}catch(e){val=null;} }
+      _cache[key]=val;
+      if(_onCacheUpdate) _onCacheUpdate();
+    },err=>console.error('listen error',key,err));
+  });
+}
+
+// Users and Students are real Firestore collections (not blobs) so each
+// account/record has its own document — this is what lets us attach real
+// Firebase Auth logins (staff usernames, student codes) to them.
+let usersCache=[];
+let studentsCache=[];
+function getUsers(){return usersCache;}
+function getStudents(){return studentsCache;}
+function watchCollections(){
+  db.collection('users').onSnapshot(snap=>{
+    usersCache=snap.docs.map(d=>({id:d.id,...d.data()}));
+    if(_onCacheUpdate) _onCacheUpdate();
+  },err=>console.error('users listen error',err));
+  db.collection('students').onSnapshot(snap=>{
+    studentsCache=snap.docs.map(d=>({id:d.id,...d.data()}));
+    if(_onCacheUpdate) _onCacheUpdate();
+  },err=>console.error('students listen error',err));
+}
+
+function getClasses(){return ls(K.classes)||[];}
+function getScores(){return ls(K.scores)||{};}
+function getPComments(){return ls(K.principalComments)||{};}
+function getTComments(){return ls(K.teacherComments)||{};}
+function getSettings(){return ls(K.settings)||{};}
+function getSavedCards(){return ls(K.reportCards)||[];}
+function getStudentSubjects(){return ls(K.studentSubjects)||{};}
+
+/* ── One-time seed (only runs if the database is empty) ── */
+async function seedDataIfEmpty(){
+  const usersSnap=await db.collection('users').limit(1).get();
+  if(usersSnap.empty){
+    try{
+      const cred=await getSecondaryAuth().createUserWithEmailAndPassword('admin@'+STAFF_DOMAIN,'admin123');
+      await getSecondaryAuth().signOut();
+      await db.collection('users').doc(cred.user.uid).set({
+        fullName:'Admin Principal',username:'admin',role:'admin',assignedClass:'',assignedSubject:''
+      });
+    }catch(e){ console.warn('Seed admin skipped (may already exist):',e.message); }
+  }
+  const classesDoc=await db.collection('appdata').doc(K.classes).get();
+  if(!classesDoc.exists){
+    await db.collection('appdata').doc(K.classes).set({value:JSON.stringify([])});
+  }
+  const settingsDoc=await db.collection('appdata').doc(K.settings).get();
+  if(!settingsDoc.exists){
+    await db.collection('appdata').doc(K.settings).set({value:JSON.stringify({
+      schoolName:"St Joseph's Senior Secondary School",
+      schoolAddress:'Box Bar Road, Banjul, The Gambia',
+      schoolContact:'Tel: (+220) 4227709, Email: stjosephs1921@yahoo.co.uk'
+    })});
+  }
+}
+seedDataIfEmpty();
+
+/* ═══════════════════════════════════════════════════
+   AUTH
+═══════════════════════════════════════════════════ */
+let currentUser=null;
+let loginMode='staff'; // 'staff' | 'student'
+
+function setLoginMode(mode){
+  loginMode=mode;
+  document.getElementById('staffTabBtn').classList.toggle('active',mode==='staff');
+  document.getElementById('studentTabBtn').classList.toggle('active',mode==='student');
+  document.getElementById('staffLoginFields').style.display=mode==='staff'?'block':'none';
+  document.getElementById('studentLoginFields').style.display=mode==='student'?'block':'none';
+  document.getElementById('loginErr').textContent='';
+}
+
+async function doLogin(){
+  document.getElementById('loginErr').textContent='';
+  try{
+    if(loginMode==='staff'){
+      const u=document.getElementById('loginUser').value.trim();
+      const p=document.getElementById('loginPass').value;
+      if(!u||!p){document.getElementById('loginErr').textContent='Enter username and password.';return;}
+      await auth.signInWithEmailAndPassword(u+'@'+STAFF_DOMAIN,p);
+    } else {
+      const code=document.getElementById('loginCode').value.trim();
+      if(!code){document.getElementById('loginErr').textContent='Enter your login code.';return;}
+      const email=code.toLowerCase()+'@'+STUDENT_DOMAIN;
+      await auth.signInWithEmailAndPassword(email,studentPassword(code));
+    }
+  }catch(e){
+    document.getElementById('loginErr').textContent=loginMode==='staff'
+      ?'Invalid username or password.'
+      :'Invalid login code. Check with the school office.';
+  }
+}
+document.getElementById('loginPass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+document.getElementById('loginUser').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+document.getElementById('loginCode').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+
+function doLogout(){
+  auth.signOut();
+}
+
+auth.onAuthStateChanged(async user=>{
+  if(!user){
+    currentUser=null;
+    document.getElementById('loginUser').value='';
+    document.getElementById('loginPass').value='';
+    document.getElementById('loginCode').value='';
+    document.getElementById('loginErr').textContent='';
+    document.getElementById('loginScreen').classList.add('active');
+    document.getElementById('portalScreen').classList.remove('active');
+    document.getElementById('studentPortalScreen').classList.remove('active');
+    return;
+  }
+  try{
+    const profileSnap=await db.collection('users').doc(user.uid).get();
+    if(!profileSnap.exists){
+      document.getElementById('loginErr').textContent='Account has no profile. Contact admin.';
+      auth.signOut();
+      return;
+    }
+    currentUser={id:user.uid,...profileSnap.data()};
+    if(!_cacheReady){
+      watchAppData();
+      watchCollections();
+      _cacheReady=true;
+      setTimeout(()=>routeAfterLogin(),300); // let snapshot listeners hydrate first
+    } else {
+      routeAfterLogin();
+    }
+  }catch(e){
+    console.error(e);
+    document.getElementById('loginErr').textContent='Could not load your profile. Try again.';
+  }
+});
+
+function routeAfterLogin(){
+  if(currentUser.role==='student') showStudentPortal();
+  else showPortal();
+}
+
+/* ═══════════════════════════════════════════════════
+   PORTAL SHELL
+═══════════════════════════════════════════════════ */
+const ROLE_LABELS={admin:'Admin / Principal',classteacher:'Class Teacher',subjectteacher:'Subject Teacher',viewer:'Viewer',student:'Student'};
+
+let _activeTabName=null;
+function showPortal(){
+  document.getElementById('loginScreen').classList.remove('active');
+  document.getElementById('studentPortalScreen').classList.remove('active');
+  document.getElementById('portalScreen').classList.add('active');
+  document.getElementById('topRoleBadge').textContent=ROLE_LABELS[currentUser.role]||currentUser.role;
+  document.getElementById('topUserName').textContent=currentUser.fullName;
+  _onCacheUpdate=()=>{ if(_activeTabName && document.getElementById('portalScreen').classList.contains('active')) renderPanel(_activeTabName); };
+  buildNav();
+}
+
+function buildNav(){
+  const role=currentUser.role;
+  let tabs=[];
+  if(role==='admin'){
+    tabs=['Dashboard','Students','Classes','Users','Subject Registration','Scores','Comments','Report Cards','Settings'];
+  } else if(role==='classteacher'){
+    tabs=['My Class','Teacher Comments','Report Cards'];
+  } else if(role==='subjectteacher'){
+    tabs=['Score Entry'];
+  } else if(role==='viewer'){
+    tabs=['Browse Students','Report Cards'];
+  }
+  const nav=document.getElementById('navTabs');
+  nav.innerHTML=tabs.map((t,i)=>`<div class="nav-tab${i===0?' active':''}" onclick="switchTab('${t}',this)">${t}</div>`).join('');
+  switchTab(tabs[0]);
+}
+
+function showStudentPortal(){
+  document.getElementById('loginScreen').classList.remove('active');
+  document.getElementById('portalScreen').classList.remove('active');
+  document.getElementById('studentPortalScreen').classList.add('active');
+  document.getElementById('studentTopName').textContent=currentUser.fullName||'';
+  _onCacheUpdate=()=>{ if(document.getElementById('studentPortalScreen').classList.contains('active')) renderStudentPortal(); };
+  renderStudentPortal();
+}
+
+function renderStudentPortal(){
+  const c=document.getElementById('studentPanelContent');
+  const student=getStudents().find(s=>s.id===currentUser.studentId);
+  if(!student){ c.innerHTML='<p style="padding:20px;color:#666;">Your student record could not be found. Contact the school office.</p>'; return; }
+  c.innerHTML=`<div id="rcBuilderArea"><div id="rcBuilder"></div></div>`;
+  document.getElementById('rcBuilder').innerHTML=renderRCBuilder(student.id,true);
+  initBuilderForStudent(student.id,true);
+}
+
+function switchTab(name, el){
+  _activeTabName=name;
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  if(el) el.classList.add('active');
+  else {
+    const all=document.querySelectorAll('.nav-tab');
+    all.forEach(t=>{if(t.textContent===name)t.classList.add('active');});
+  }
+  renderPanel(name);
+}
+
+/* ═══════════════════════════════════════════════════
+   PANEL RENDERERS
+═══════════════════════════════════════════════════ */
+function renderPanel(name){
+  const c=document.getElementById('panelContent');
+  switch(name){
+    case 'Dashboard': c.innerHTML=renderDashboard(); break;
+    case 'Students': c.innerHTML=renderStudentsPanel(); break;
+    case 'Classes': c.innerHTML=renderClassesPanel(); break;
+    case 'Users': c.innerHTML=renderUsersPanel(); break;
+    case 'Scores': c.innerHTML=renderScoresAdmin(); break;
+    case 'Comments': c.innerHTML=renderPrincipalComments(); break;
+    case 'Subject Registration': c.innerHTML=renderSubjectRegistration(); break;
+    case 'Settings': c.innerHTML=renderSettingsPanel(); break;
+    case 'My Class': c.innerHTML=renderMyClass(); break;
+    case 'Teacher Comments': c.innerHTML=renderTeacherComments(); break;
+    case 'Score Entry': c.innerHTML=renderScoreEntry(); break;
+    case 'Browse Students': c.innerHTML=renderBrowseStudents(); break;
+    case 'Report Cards': c.innerHTML=renderReportCardsPanel(); break;
+    default: c.innerHTML='<p>Coming soon.</p>';
+  }
+}
+
+/* ── DASHBOARD ── */
+function renderDashboard(){
+  const students=getStudents();
+  const classes=getClasses();
+  const users=getUsers();
+  const scores=getScores();
+  const pc=getPComments();
+  const tc=getTComments();
+  const totalScoreEntries=Object.keys(scores).length;
+  const totalPC=Object.keys(pc).length;
+  const totalTC=Object.keys(tc).length;
+  return `
+  <div class="stats-row">
+    <div class="stat-card"><div class="num">${students.length}</div><div class="lbl">Total Students</div></div>
+    <div class="stat-card"><div class="num">${classes.length}</div><div class="lbl">Classes</div></div>
+    <div class="stat-card"><div class="num">${users.length}</div><div class="lbl">Users</div></div>
+    <div class="stat-card"><div class="num">${totalScoreEntries}</div><div class="lbl">Score Entries</div></div>
+    <div class="stat-card"><div class="num">${totalPC}</div><div class="lbl">Principal Comments</div></div>
+    <div class="stat-card"><div class="num">${totalTC}</div><div class="lbl">Teacher Comments</div></div>
+  </div>
+  <div class="section-hd"><h2>📋 Quick Overview by Class</h2></div>
+  <table class="data-table">
+    <thead><tr><th>Class</th><th>Teacher</th><th>Students</th><th>Score Entries</th><th>Comments</th></tr></thead>
+    <tbody>
+      ${classes.map(cl=>{
+        const teacher=users.find(u=>u.id===cl.teacherId);
+        const cls=students.filter(s=>s.classId===cl.id);
+        const scEntries=cls.filter(s=>scores[s.id]).length;
+        const tcEntries=cls.filter(s=>tc[s.id]).length;
+        return `<tr>
+          <td><strong>${cl.name}</strong></td>
+          <td>${teacher?teacher.fullName:'<span style="color:#aaa">Unassigned</span>'}</td>
+          <td>${cls.length}</td>
+          <td>${scEntries}/${cls.length}</td>
+          <td>${tcEntries}/${cls.length}</td>
+        </tr>`;
+      }).join('')}
+    </tbody>
+  </table>`;
+}
+
+/* ── STUDENTS PANEL ── */
+function renderStudentsPanel(){
+  const students=getStudents();
+  const classes=getClasses();
+  return `
+  <div class="section-hd">
+    <h2>👩‍🎓 Students</h2>
+    <button class="btn-primary" onclick="openAddStudent()">+ Add Student</button>
+  </div>
+  <div class="filter-row">
+    <input id="stFilter" placeholder="Search by name or admission…" oninput="filterStudentTable()" style="flex:1;max-width:280px;">
+    <select id="stClassFilter" onchange="filterStudentTable()">
+      <option value="">All Classes</option>
+      ${classes.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}
+    </select>
+  </div>
+  <table class="data-table" id="studentTable">
+    <thead><tr><th>Name</th><th>Adm No</th><th>Class</th><th>Login Code</th><th>Actions</th></tr></thead>
+    <tbody>${students.map(s=>{
+      const cl=classes.find(c=>c.id===s.classId);
+      return `<tr data-name="${s.name.toLowerCase()}" data-adm="${(s.admNo||'').toLowerCase()}" data-class="${s.classId}">
+        <td><strong>${s.name}</strong></td>
+        <td>${s.admNo||''}</td>
+        <td>${cl?cl.name:'<span style="color:#aaa">Unassigned</span>'}</td>
+        <td>${s.code?`<code>${s.code}</code>`:'<span style="color:#aaa">none</span>'}</td>
+        <td>
+          <button class="btn-secondary btn-sm" onclick="openEditStudent('${s.id}')">Edit</button>
+          <button class="btn-secondary btn-sm" onclick="generateStudentLogin('${s.id}')">${s.code?'Regen Code':'Generate Code'}</button>
+          <button class="btn-danger btn-sm" onclick="deleteStudent('${s.id}')">Delete</button>
+        </td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>`;
+}
+
+function filterStudentTable(){
+  const q=(document.getElementById('stFilter')||{value:''}).value.toLowerCase();
+  const cls=(document.getElementById('stClassFilter')||{value:''}).value;
+  document.querySelectorAll('#studentTable tbody tr').forEach(tr=>{
+    const matchQ=!q||tr.dataset.name.includes(q)||tr.dataset.adm.includes(q);
+    const matchC=!cls||tr.dataset.class===cls;
+    tr.style.display=(matchQ&&matchC)?'':'none';
+  });
+}
+
+/* ── CLASSES PANEL ── */
+function renderClassesPanel(){
+  const classes=getClasses();
+  const users=getUsers();
+  return `
+  <div class="section-hd"><h2>🏫 Classes</h2><button class="btn-primary" onclick="openAddClass()">+ Add Class</button></div>
+  <table class="data-table">
+    <thead><tr><th>Class Name</th><th>Class Teacher</th><th>Students</th><th>Actions</th></tr></thead>
+    <tbody>${classes.map(cl=>{
+      const teacher=users.find(u=>u.id===cl.teacherId);
+      const count=getStudents().filter(s=>s.classId===cl.id).length;
+      return `<tr>
+        <td><strong>${cl.name}</strong></td>
+        <td>${teacher?teacher.fullName:'<span style="color:#aaa">Unassigned</span>'}</td>
+        <td>${count}</td>
+        <td>
+          <button class="btn-secondary btn-sm" onclick="openEditClass('${cl.id}')">Edit</button>
+          <button class="btn-danger btn-sm" onclick="deleteClass('${cl.id}')">Delete</button>
+        </td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>`;
+}
+
+/* ── USERS PANEL ── */
+function renderUsersPanel(){
+  const users=getUsers().filter(u=>u.role!=='student');
+  return `
+  <div class="section-hd"><h2>👤 Users</h2><button class="btn-primary" onclick="openAddUser()">+ Add User</button></div>
+  <table class="data-table">
+    <thead><tr><th>Name</th><th>Username</th><th>Role</th><th>Class / Subject</th><th>Actions</th></tr></thead>
+    <tbody>${users.map(u=>{
+      const cl=u.assignedClass?getClasses().find(c=>c.id===u.assignedClass):'';
+      return `<tr>
+        <td>${u.fullName}</td>
+        <td><code>${u.username}</code></td>
+        <td><span class="badge badge-grey">${ROLE_LABELS[u.role]||u.role}</span></td>
+        <td>${cl?cl.name:''}${u.assignedSubject?' / '+u.assignedSubject:''}</td>
+        <td>
+          <button class="btn-secondary btn-sm" onclick="openEditUser('${u.id}')">Edit</button>
+          ${u.id!==currentUser.id?`<button class="btn-danger btn-sm" onclick="deleteUser('${u.id}')">Delete</button>`:''}
+        </td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>`;
+}
+
+/* ── SCORES ADMIN ── */
+function renderScoresAdmin(){
+  const students=getStudents();
+  const classes=getClasses();
+  const scores=getScores();
+  return `
+  <div class="section-hd"><h2>📊 Score Overview (All Classes)</h2></div>
+  <p style="font-size:12px;color:#888;margin:-6px 0 14px;">View only — scores are entered by each subject teacher.</p>
+  ${classes.map(cl=>{
+    const cls=students.filter(s=>s.classId===cl.id);
+    return `
+    <h3 style="margin:20px 0 10px;font-size:14px;color:var(--navy);">${cl.name}</h3>
+    <table class="data-table" style="margin-bottom:16px;">
+      <thead><tr><th>Student</th><th>Subjects Entered</th><th>Average</th><th>Status</th></tr></thead>
+      <tbody>${cls.map(s=>{
+        const sc=scores[s.id]||{};
+        const subs=Object.keys(sc);
+        const vals=subs.map(k=>parseFloat(sc[k])||0);
+        const avg=vals.length?(vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1):'—';
+        const badge=subs.length===0?'<span class="badge badge-grey">None</span>':
+          subs.length<5?'<span class="badge badge-orange">Partial</span>':
+          '<span class="badge badge-green">Complete</span>';
+        return `<tr><td><strong>${s.name}</strong><br><span style="font-size:11px;color:#888">${s.admNo}</span></td>
+          <td>${subs.length}</td><td>${avg}${vals.length?'%':''}</td><td>${badge}</td></tr>`;
+      }).join('')}</tbody>
+    </table>`;
+  }).join('')}`;
+}
+
+/* ── PRINCIPAL COMMENTS ── */
+let pcCurrentStudentId=null;
+function renderPrincipalComments(){
+  const students=getStudents();
+  const classes=getClasses();
+  const pc=getPComments();
+  return `
+  <div class="section-hd"><h2>🏛 Principal's Comments</h2></div>
+  ${classes.map(cl=>{
+    const cls=students.filter(s=>s.classId===cl.id);
+    return `
+    <h3 style="margin:20px 0 10px;font-size:14px;color:var(--navy);">${cl.name}</h3>
+    <table class="data-table" style="margin-bottom:16px;">
+      <thead><tr><th>Student</th><th>Comment</th><th>Action</th></tr></thead>
+      <tbody>${cls.map(s=>{
+        const comment=pc[s.id]||'';
+        return `<tr>
+          <td><strong>${s.name}</strong></td>
+          <td style="max-width:400px;color:${comment?'#333':'#aaa'}">${comment||'No comment yet'}</td>
+          <td><button class="btn-secondary btn-sm" onclick="openPCModal('${s.id}','${s.name.replace(/'/g,"\\'")}')">
+            ${comment?'Edit':'Add'} Comment</button></td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>`;
+  }).join('')}`;
+}
+
+function openPCModal(studentId,name){
+  pcCurrentStudentId=studentId;
+  document.getElementById('pcStudentLabel').textContent='Student: '+name;
+  document.getElementById('pcText').value=getPComments()[studentId]||'';
+  openModal('pcModalBackdrop');
+}
+function savePrincipalComment(){
+  const comments=getPComments();
+  comments[pcCurrentStudentId]=document.getElementById('pcText').value.trim();
+  lsSet(K.principalComments,comments);
+  closeModal('pcModalBackdrop');
+  showToast('Principal comment saved ✓');
+  renderPanel('Comments');
+}
+
+/* ── SUBJECT REGISTRATION ── */
+// Common subject pool for autocomplete suggestions
+const COMMON_SUBJECTS=[
+  'Biology','Chemistry','Physics','Mathematics','English Language',
+  'Literature in English','History','Geography','Economics','Accounting',
+  'Commerce','Civic Education','General Science','Health Science',
+  'Home Management','I.T','French','Arabic','Physical Education',
+  'Religious Studies','Agriculture','Art & Design','Music'
+];
+
+let srClassFilter='';
+let srStudentId=null;
+
+function renderSubjectRegistration(){
+  const classes=getClasses();
+  const students=getStudents();
+  const allSubjects=getStudentSubjects();
+
+  const filtered=srClassFilter?students.filter(s=>s.classId===srClassFilter):students;
+
+  return `
+  <div class="section-hd">
+    <h2>📚 Subject Registration</h2>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn-secondary" onclick="openBulkAssignModal()">⚡ Bulk Assign to Class</button>
+    </div>
+  </div>
+  <p style="font-size:13px;color:#666;margin-bottom:16px;">Register the subjects each student is enrolled in. These subjects will appear in score entry and report cards.</p>
+
+  <div class="filter-row">
+    <select id="srClassFilter" onchange="srFilterChange()">
+      <option value="">All Classes</option>
+      ${classes.map(c=>`<option value="${c.id}"${c.id===srClassFilter?' selected':''}>${c.name}</option>`).join('')}
+    </select>
+  </div>
+
+  <div style="display:grid;gap:16px;">
+    ${filtered.map(s=>{
+      const cl=classes.find(c=>c.id===s.classId);
+      const subjects=allSubjects[s.id]||[];
+      return `
+      <div style="background:#fff;border-radius:8px;padding:18px 20px;box-shadow:0 2px 8px rgba(0,0,0,.07);">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+          <div>
+            <strong style="color:var(--navy);font-size:14px;">${s.name}</strong>
+            <span style="color:#888;font-size:12px;margin-left:8px;">${s.admNo}</span>
+            <div style="font-size:12px;color:#666;margin-top:2px;">${cl?cl.name:''}</div>
+          </div>
+          <button class="btn-primary btn-sm" onclick="openSubjectModal('${s.id}','${s.name.replace(/'/g,"\\'")}')">✏️ Edit Subjects</button>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;min-height:28px;">
+          ${subjects.length
+            ? subjects.map(sub=>`<span style="background:#e8f0fe;color:#1f3a5f;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:bold;">${sub}</span>`).join('')
+            : '<span style="color:#aaa;font-size:12px;font-style:italic;">No subjects registered yet</span>'
+          }
+        </div>
+      </div>`;
+    }).join('')}
+    ${filtered.length===0?'<p style="color:#aaa;text-align:center;padding:30px;">No students found.</p>':''}
+  </div>`;
+}
+
+function srFilterChange(){
+  srClassFilter=document.getElementById('srClassFilter').value;
+  renderPanel('Subject Registration');
+}
+
+/* ── Subject edit modal ── */
+function openSubjectModal(studentId, name){
+  srStudentId=studentId;
+  document.getElementById('srStudentLabel').textContent=name;
+  renderSubjectTags(studentId);
+  document.getElementById('srNewSubject').value='';
+  openModal('subjectModalBackdrop');
+}
+
+function renderSubjectTags(studentId){
+  const allSubjects=getStudentSubjects();
+  const subjects=allSubjects[studentId]||[];
+  document.getElementById('srTagsArea').innerHTML=subjects.length
+    ? subjects.map((sub,i)=>`
+        <span style="display:inline-flex;align-items:center;gap:4px;background:#e8f0fe;color:#1f3a5f;padding:4px 10px;border-radius:12px;font-size:13px;font-weight:bold;margin:3px;">
+          ${sub}
+          <button onclick="removeSubjectTag(${i})" style="border:none;background:none;color:#a33;cursor:pointer;font-size:14px;line-height:1;padding:0 2px;">×</button>
+        </span>`).join('')
+    : '<span style="color:#aaa;font-size:13px;">No subjects yet. Add below.</span>';
+}
+
+function addSubjectTag(){
+  const input=document.getElementById('srNewSubject');
+  const val=input.value.trim();
+  if(!val){showToast('Enter a subject name.');return;}
+  const allSubjects=getStudentSubjects();
+  if(!allSubjects[srStudentId]) allSubjects[srStudentId]=[];
+  if(allSubjects[srStudentId].includes(val)){showToast('Subject already added.');return;}
+  allSubjects[srStudentId].push(val);
+  lsSet(K.studentSubjects,allSubjects);
+  input.value='';
+  renderSubjectTags(srStudentId);
+  showToast(`${val} added ✓`);
+}
+
+function removeSubjectTag(index){
+  const allSubjects=getStudentSubjects();
+  if(!allSubjects[srStudentId]) return;
+  allSubjects[srStudentId].splice(index,1);
+  lsSet(K.studentSubjects,allSubjects);
+  renderSubjectTags(srStudentId);
+}
+
+function saveSubjectModal(){
+  closeModal('subjectModalBackdrop');
+  renderPanel('Subject Registration');
+  showToast('Subjects saved ✓');
+}
+
+/* ── Bulk assign modal ── */
+function openBulkAssignModal(){
+  const classes=getClasses();
+  document.getElementById('baClassSelect').innerHTML=
+    '<option value="">-- Select Class --</option>'+
+    classes.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  document.getElementById('baSubjectsInput').value='';
+  document.getElementById('baMode').value='replace';
+  openModal('bulkAssignModalBackdrop');
+}
+
+function saveBulkAssign(){
+  const classId=document.getElementById('baClassSelect').value;
+  const raw=document.getElementById('baSubjectsInput').value;
+  const mode=document.getElementById('baMode').value;
+  if(!classId){showToast('Select a class first.');return;}
+  const subjects=raw.split(/[\n,]+/).map(s=>s.trim()).filter(Boolean);
+  if(!subjects.length){showToast('Enter at least one subject.');return;}
+
+  const students=getStudents().filter(s=>s.classId===classId);
+  const allSubjects=getStudentSubjects();
+  students.forEach(s=>{
+    if(mode==='replace'){
+      allSubjects[s.id]=[...subjects];
+    } else {
+      // merge
+      if(!allSubjects[s.id]) allSubjects[s.id]=[];
+      subjects.forEach(sub=>{
+        if(!allSubjects[s.id].includes(sub)) allSubjects[s.id].push(sub);
+      });
+    }
+  });
+  lsSet(K.studentSubjects,allSubjects);
+  closeModal('bulkAssignModalBackdrop');
+  renderPanel('Subject Registration');
+  showToast(`Subjects assigned to ${students.length} student(s) ✓`);
+}
+
+/* ── SETTINGS PANEL ── */
+function renderSettingsPanel(){
+  const cfg=getSettings();
+  return `
+  <div class="section-hd"><h2>⚙ School Settings & Grading</h2></div>
+  <div style="background:#fff;border-radius:8px;padding:24px;box-shadow:0 2px 8px rgba(0,0,0,.07);max-width:520px;">
+    <div class="form-row"><label>School Name</label><input id="cfgSN" value="${cfg.schoolName||''}" placeholder="School name"></div>
+    <div class="form-row"><label>Address</label><input id="cfgSA" value="${cfg.schoolAddress||''}" placeholder="Address"></div>
+    <div class="form-row"><label>Contact</label><input id="cfgSC" value="${cfg.schoolContact||''}" placeholder="Tel / Email"></div>
+    <button class="btn-primary" onclick="saveCfg()">Save Settings</button>
+  </div>
+  <div style="margin-top:20px;background:#fff;border-radius:8px;padding:24px;box-shadow:0 2px 8px rgba(0,0,0,.07);max-width:520px;">
+    <div style="font-weight:bold;margin-bottom:12px;color:var(--navy);">Grading Scale</div>
+    <button class="btn-secondary" onclick="openScaleModal()">⚙ Edit Grading Scale</button>
+  </div>
+  <div style="margin-top:20px;background:#fff;border-radius:8px;padding:24px;box-shadow:0 2px 8px rgba(0,0,0,.07);max-width:520px;">
+    <div style="font-weight:bold;margin-bottom:12px;color:var(--navy);">Principal's Signature</div>
+    <button class="btn-secondary" onclick="openSettingsModal()">🖋 Upload Signature</button>
+  </div>`;
+}
+function saveCfg(){
+  const cfg=getSettings();
+  cfg.schoolName=document.getElementById('cfgSN').value.trim();
+  cfg.schoolAddress=document.getElementById('cfgSA').value.trim();
+  cfg.schoolContact=document.getElementById('cfgSC').value.trim();
+  lsSet(K.settings,cfg);
+  showToast('Settings saved ✓');
+}
+
+/* ── MY CLASS (Class Teacher) ── */
+function renderMyClass(){
+  const cl=getClasses().find(c=>c.id===currentUser.assignedClass);
+  if(!cl) return '<p style="color:#666;padding:20px;">No class assigned to your account. Ask the admin to assign you a class.</p>';
+  const students=getStudents().filter(s=>s.classId===cl.id);
+  const scores=getScores();
+  return `
+  <div class="section-hd"><h2>📚 ${cl.name}</h2></div>
+  <table class="data-table">
+    <thead><tr><th>Student</th><th>Adm No</th><th>Subjects Entered</th><th>Status</th></tr></thead>
+    <tbody>${students.map(s=>{
+      const sc=scores[s.id]||{};
+      const n=Object.keys(sc).length;
+      const badge=n===0?'<span class="badge badge-grey">None</span>':
+        n<5?'<span class="badge badge-orange">Partial</span>':
+        '<span class="badge badge-green">Complete</span>';
+      return `<tr><td><strong>${s.name}</strong></td><td>${s.admNo}</td><td>${n}</td><td>${badge}</td></tr>`;
+    }).join('')}</tbody>
+  </table>`;
+}
+
+/* ── TEACHER COMMENTS ── */
+function renderTeacherComments(){
+  const cl=getClasses().find(c=>c.id===currentUser.assignedClass);
+  if(!cl) return '<p style="color:#666;padding:20px;">No class assigned.</p>';
+  const students=getStudents().filter(s=>s.classId===cl.id);
+  const tc=getTComments();
+  return `
+  <div class="section-hd"><h2>✏️ Teacher Comments – ${cl.name}</h2></div>
+  <table class="data-table">
+    <thead><tr><th>Student</th><th>Comment</th><th>Action</th></tr></thead>
+    <tbody>${students.map(s=>{
+      const comment=tc[s.id]||'';
+      return `<tr>
+        <td><strong>${s.name}</strong></td>
+        <td style="max-width:360px;color:${comment?'#333':'#aaa'}">${comment||'No comment yet'}</td>
+        <td><button class="btn-secondary btn-sm" onclick="openTCEdit('${s.id}','${s.name.replace(/'/g,"\\'")}')">
+          ${comment?'Edit':'Add'}</button></td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>
+  <div id="tcEditArea" style="display:none;background:#fff;border-radius:8px;padding:20px;margin-top:16px;box-shadow:0 2px 8px rgba(0,0,0,.07);">
+    <strong id="tcEditName" style="color:var(--navy);"></strong>
+    <textarea id="tcEditText" rows="3" style="width:100%;border:1px solid #ccc;border-radius:5px;padding:8px;margin:10px 0;font-size:13px;font-family:Arial,sans-serif;resize:vertical;" placeholder="Enter comment..."></textarea>
+    <button class="btn-primary" onclick="saveTComment()">Save Comment</button>
+    <button class="btn-secondary" onclick="document.getElementById('tcEditArea').style.display='none'" style="margin-left:8px;">Cancel</button>
+  </div>`;
+}
+
+let tcCurrentStudentId=null;
+function openTCEdit(id,name){
+  tcCurrentStudentId=id;
+  document.getElementById('tcEditName').textContent=name;
+  document.getElementById('tcEditText').value=getTComments()[id]||'';
+  document.getElementById('tcEditArea').style.display='block';
+  document.getElementById('tcEditArea').scrollIntoView({behavior:'smooth'});
+}
+function saveTComment(){
+  const comments=getTComments();
+  comments[tcCurrentStudentId]=document.getElementById('tcEditText').value.trim();
+  lsSet(K.teacherComments,comments);
+  showToast('Comment saved ✓');
+  renderPanel('Teacher Comments');
+}
+
+/* ── SCORE ENTRY ── */
+function renderScoreEntry(){
+  const user=currentUser;
+  const classes=getClasses();
+  // subject teacher: filter to assigned class
+  const myClass=user.role==='subjectteacher'
+    ? classes.find(c=>c.id===user.assignedClass)
+    : classes[0];
+  const students=getStudents().filter(s=>s.classId===(myClass?myClass.id:''));
+  const subject=user.assignedSubject||'';
+  const scores=getScores();
+
+  return `
+  <div class="section-hd"><h2>📝 Score Entry${subject?' – '+subject:''}</h2></div>
+  ${user.role==='subjectteacher'&&myClass?`<p style="font-size:13px;color:#555;margin-bottom:16px;">Class: <strong>${myClass.name}</strong> | Subject: <strong>${subject}</strong></p>`:''}
+  ${!myClass?'<p style="color:#666;padding:20px;">No class assigned. Contact the admin.</p>':`
+  <table class="score-entry-table">
+    <thead><tr><th>Student</th><th>Adm No</th><th>Score (0-100)</th><th>Grade</th></tr></thead>
+    <tbody>
+      ${students.map(s=>{
+        const sc=scores[s.id]||{};
+        const val=sc[subject]||'';
+        const g=computeGrade(val);
+        return `<tr>
+          <td><strong>${s.name}</strong></td>
+          <td style="color:#888;font-size:12px;">${s.admNo}</td>
+          <td><input type="number" min="0" max="100" value="${val}" id="score_${s.id}" oninput="autoGrade('${s.id}')"></td>
+          <td id="grade_${s.id}" style="font-weight:bold;color:var(--navy);">${g||'—'}</td>
+        </tr>`;
+      }).join('')}
+    </tbody>
+  </table>
+  <div style="margin-top:16px;display:flex;gap:10px;">
+    <button class="btn-primary" onclick="saveAllScores('${myClass.id}','${subject}')">💾 Save All Scores</button>
+  </div>`}`;
+}
+
+function autoGrade(studentId){
+  const input=document.getElementById('score_'+studentId);
+  const g=computeGrade(input.value);
+  document.getElementById('grade_'+studentId).textContent=g||'—';
+}
+
+function saveAllScores(classId,subject){
+  const students=getStudents().filter(s=>s.classId===classId);
+  const scores=getScores();
+  students.forEach(s=>{
+    const input=document.getElementById('score_'+s.id);
+    if(!input) return;
+    if(!scores[s.id]) scores[s.id]={};
+    const v=input.value.trim();
+    if(v!=='') scores[s.id][subject]=v;
+    else delete scores[s.id][subject];
+  });
+  lsSet(K.scores,scores);
+  showToast('Scores saved ✓');
+}
+
+/* ── BROWSE STUDENTS (Viewer) ── */
+function renderBrowseStudents(){
+  const students=getStudents();
+  const classes=getClasses();
+  return `
+  <div class="section-hd"><h2>👁 Browse Students</h2></div>
+  <div class="filter-row">
+    <input id="bFilter" placeholder="Search by name…" oninput="filterBrowse()" style="flex:1;max-width:280px;">
+    <select id="bClassFilter" onchange="filterBrowse()">
+      <option value="">All Classes</option>
+      ${classes.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}
+    </select>
+  </div>
+  <table class="data-table" id="browseTable">
+    <thead><tr><th>Student</th><th>Adm No</th><th>Class</th></tr></thead>
+    <tbody>${students.map(s=>{
+      const cl=classes.find(c=>c.id===s.classId);
+      return `<tr data-name="${s.name.toLowerCase()}" data-class="${s.classId}">
+        <td><strong>${s.name}</strong></td>
+        <td>${s.admNo}</td>
+        <td>${cl?cl.name:''}</td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>`;
+}
+function filterBrowse(){
+  const q=(document.getElementById('bFilter')||{value:''}).value.toLowerCase();
+  const cls=(document.getElementById('bClassFilter')||{value:''}).value;
+  document.querySelectorAll('#browseTable tbody tr').forEach(tr=>{
+    tr.style.display=(!q||tr.dataset.name.includes(q))&&(!cls||tr.dataset.class===cls)?'':'none';
+  });
+}
+
+/* ── REPORT CARDS PANEL ── */
+function renderReportCardsPanel(){
+  const role=currentUser.role;
+  let students=getStudents();
+  const classes=getClasses();
+  if(role==='classteacher') students=students.filter(s=>s.classId===currentUser.assignedClass);
+
+  const btnPrintAll=role==='admin'?`<button class="btn-secondary" onclick="printAllCards()">🖨 Print All Report Cards</button>`:'';
+
+  return `
+  <div class="section-hd">
+    <h2>📄 Report Cards</h2>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">${btnPrintAll}</div>
+  </div>
+  <div class="filter-row">
+    <select id="rcClassFilter" onchange="filterRCList()">
+      <option value="">All Classes</option>
+      ${classes.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}
+    </select>
+  </div>
+  <table class="data-table" id="rcTable">
+    <thead><tr><th>Student</th><th>Class</th><th>Actions</th></tr></thead>
+    <tbody>${students.map(s=>{
+      const cl=classes.find(c=>c.id===s.classId);
+      const canEdit=role==='admin'||role==='classteacher';
+      return `<tr data-class="${s.classId}">
+        <td><strong>${s.name}</strong><br><span style="font-size:11px;color:#888">${s.admNo}</span></td>
+        <td>${cl?cl.name:''}</td>
+        <td>
+          <button class="btn-secondary btn-sm" onclick="previewCard('${s.id}')">👁 Preview</button>
+          ${canEdit?`<button class="btn-primary btn-sm" onclick="buildCard('${s.id}')">✏️ Build / Edit</button>`:''}
+          <button class="btn-secondary btn-sm" onclick="printCard('${s.id}')">🖨 Print</button>
+        </td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>
+  <div id="rcBuilderArea" style="margin-top:24px;display:none;">
+    <div id="rcBuilder"></div>
+  </div>`;
+}
+
+function filterRCList(){
+  const cls=(document.getElementById('rcClassFilter')||{value:''}).value;
+  document.querySelectorAll('#rcTable tbody tr').forEach(tr=>{
+    tr.style.display=(!cls||tr.dataset.class===cls)?'':'none';
+  });
+}
+
+function previewCard(studentId){buildCard(studentId,true);}
+
+let currentBuilderStudentId=null;
+function buildCard(studentId,readOnly){
+  currentBuilderStudentId=studentId;
+  const area=document.getElementById('rcBuilderArea');
+  area.style.display='block';
+  area.scrollIntoView({behavior:'smooth'});
+  const builder=document.getElementById('rcBuilder');
+  builder.innerHTML=renderRCBuilder(studentId,readOnly);
+  initBuilderForStudent(studentId,readOnly);
+}
+
+function printCard(studentId){
+  buildCard(studentId,true);
+  setTimeout(()=>window.print(),600);
+}
+
+function printAllCards(){
+  showToast('Opening print for all cards…',3000);
+  window.print();
+}
+
+/* ═══════════════════════════════════════════════════
+   REPORT CARD BUILDER HTML
+═══════════════════════════════════════════════════ */
+let gradingScale=[
+  {label:"A1",min:75,max:100,remark:"Excellent"},
+  {label:"B2",min:70,max:74,remark:"Very Good"},
+  {label:"B3",min:65,max:69,remark:"Good"},
+  {label:"C4",min:60,max:64,remark:"Credit"},
+  {label:"C5",min:55,max:59,remark:"Credit"},
+  {label:"C6",min:50,max:54,remark:"Credit"},
+  {label:"D7",min:45,max:49,remark:"Pass"},
+  {label:"E8",min:40,max:44,remark:"Pass"},
+  {label:"F9",min:0,max:39,remark:"Fail"}
+];
+
+function computeGrade(score){
+  if(score===''||isNaN(score)) return null;
+  const s=parseFloat(score);
+  return (gradingScale.find(g=>s>=g.min&&s<=g.max)||null)?.label||null;
+}
+function computeRemark(grade){return (gradingScale.find(g=>g.label===grade)||{}).remark||"";}
+function gradeOptions(selected){return gradingScale.map(g=>`<option value="${g.label}"${g.label===selected?' selected':''}>${g.label}</option>`).join('');}
+
+function renderRCBuilder(studentId,readOnly){
+  const ro=readOnly?'':' (Edit Mode)';
+  const canToggleEdit=readOnly&&currentUser&&(currentUser.role==='classteacher'||currentUser.role==='admin');
+  const actButtons=readOnly?`
+    ${canToggleEdit?`<button onclick="buildCard('${studentId}',false)">✏️ Edit</button>`:''}
+    <button onclick="window.print()">🖨 Print</button>
+    <button id="downloadBtn" class="secondary" onclick="downloadPDF()">⬇ Download PDF</button>
+    <button class="gmail" onclick="openGmailModal()">✉ Gmail</button>
+    <button class="whatsapp" onclick="openWhatsAppModal()">🟢 WhatsApp</button>
+  `:`
+    ${currentUser&&currentUser.role==='admin'?`
+    <button class="secondary" onclick="openScaleModal()">⚙ Grades</button>
+    <button class="secondary" onclick="openSettingsModal()">🖋 Settings</button>
+    <button class="secondary" onclick="openLoadModal()">📂 Saved</button>`:''}
+    <button class="secondary" onclick="saveReport()">💾 Save</button>
+    <button onclick="window.print()">🖨 Print</button>
+    <button id="downloadBtn" class="secondary" onclick="downloadPDF()">⬇ Download PDF</button>
+    <button class="gmail" onclick="openGmailModal()">✉ Gmail</button>
+    <button class="whatsapp" onclick="openWhatsAppModal()">🟢 WhatsApp</button>
+  `;
+
+  return `
+  <div id="rcBuilder" style="background:var(--light);padding:16px;">
+    <div class="toolbar">
+      <h1>📋 Report Card Builder${ro}</h1>
+      <div class="actions">${actButtons}</div>
+    </div>
+    <div class="sheet" id="sheet">
+      <div class="letterhead">
+        <input class="school-name-input" id="schoolName" value="">
+        <input class="school-sub-input" id="schoolAddress" value="">
+        <input class="school-sub-input" id="schoolContact" value="">
+        <div class="crest-wrap" id="crestWrap" onclick="document.getElementById('logoInput').click()" title="Click to upload logo">
+          <div class="crest-placeholder" id="crestPlaceholder">ST<br>JOSEPH'S</div>
+          <img id="crestImg" src="" style="display:none;">
+        </div>
+      </div>
+      <div class="student-info">
+        <div class="si-row">
+          <span class="si-label">Full Name:</span>
+          <input class="si-value" id="studentName" placeholder="Student full name" style="flex:2;">
+          <span class="si-label" style="min-width:100px;text-align:right;padding-right:8px;">Admission</span>
+          <input class="si-value" id="admissionNo" placeholder="e.g. SJ25-037" style="max-width:130px;">
+        </div>
+        <div class="si-two-col" style="margin-top:6px;">
+          <div class="si-row"><span class="si-label" style="min-width:120px;">Academic Year:</span><input class="si-value" id="academicYear" placeholder="e.g. 2025-2026"></div>
+          <div class="si-row"><span class="si-label" style="min-width:100px;">Date Issued:</span><input class="si-value" id="issueDate" type="date"></div>
+          <div class="si-row"><span class="si-label" style="min-width:120px;">Report For:</span><input class="si-value" id="term" placeholder="e.g. Term 1"></div>
+          <div class="si-row"><span class="si-label" style="min-width:100px;">Class:</span><input class="si-value" id="studentClass" placeholder="e.g. Grade 10 1"></div>
+          <div class="si-row" style="grid-column:1/-1;"><span class="si-label" style="min-width:120px;">Class Teacher:</span><input class="si-value" id="classTeacherName" placeholder="Teacher name" style="max-width:220px;"></div>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="grades" id="gradesTable">
+          <thead><tr>
+            <th style="width:36%;text-align:left;">SUBJECT</th>
+            <th style="width:12%;">%</th>
+            <th style="width:14%;">GRADE</th>
+            <th style="width:28%;text-align:left;">REMARKS</th>
+            <th class="del-col" style="width:10%;"></th>
+          </tr></thead>
+          <tbody id="gradesBody"></tbody>
+        </table>
+      </div>
+      <button class="add-row-btn" onclick="addSubjectRow()">+ Add Subject</button>
+      <div class="result-bar">
+        <div class="rb-field"><span class="rb-label">Result:</span><input class="rb-input" id="resultText" value="Ordinary Pass" style="min-width:140px;"></div>
+        <div class="rb-field"><span class="rb-label">Average:</span><span id="avgDisplay">—</span></div>
+      </div>
+      <div class="comments">
+        <div class="comment-row"><span class="clabel">Class Teacher Comments:</span><textarea id="teacherComment" placeholder="Enter class teacher's comments…"></textarea></div>
+        <div class="comment-row"><span class="clabel">Head Teacher Comments:</span><textarea id="headTeacherComment" placeholder="Enter head teacher's comments…"></textarea></div>
+      </div>
+      <div class="signoff">
+        <div class="sign-block">
+          <div class="sign-label">Principal's Signature:</div>
+          <div class="sign-area" id="principalSigArea" onclick="document.getElementById('principalSigInput').click()" title="Click to upload signature">
+            <img id="principalSigImg" src="" style="display:none;">
+            <div class="sign-placeholder" id="principalSigPlaceholder">Click to upload<br>signature image</div>
+          </div>
+          <input class="sign-text" id="principalSign" placeholder="or type name">
+          <div class="sign-caption">PRINCIPAL</div>
+        </div>
+      </div>
+      <div class="footer-date">Date issued: <span id="issueDateDisplay"></span></div>
+    </div>
+  </div>`;
+}
+
+function initBuilderForStudent(studentId,readOnly){
+  const student=getStudents().find(s=>s.id===studentId);
+  const cl=student?getClasses().find(c=>c.id===student.classId):null;
+  const scores=getScores();
+  const cfg=getSettings();
+  const tc=getTComments();
+  const pc=getPComments();
+  const teacher=cl?getUsers().find(u=>u.id===cl.teacherId):null;
+
+  // Build subjects from scores
+  const subjectScores=student?scores[studentId]||{}:{};
+  const subjects=Object.entries(subjectScores).map(([subj,score])=>{
+    const g=computeGrade(score)||'F9';
+    return {subject:subj,score:String(score),grade:g,remarks:computeRemark(g)};
+  });
+
+  const data={
+    schoolName:cfg.schoolName||"St Joseph's Senior Secondary School",
+    schoolAddress:cfg.schoolAddress||'Box Bar Road, Banjul, The Gambia',
+    schoolContact:cfg.schoolContact||'Tel: (+220) 4227709, Email: stjosephs1921@yahoo.co.uk',
+    studentName:student?student.name:'',
+    admissionNo:student?student.admNo:'',
+    academicYear:'2025-2026',
+    issueDate:'',
+    term:'Term 1',
+    studentClass:cl?cl.name:'',
+    classTeacherName:teacher?teacher.fullName:'',
+    resultText:'Ordinary Pass',
+    teacherComment:tc[studentId]||'',
+    headTeacherComment:pc[studentId]||'',
+    principalSign:'',
+    subjects:subjects.length?subjects:[{subject:'',score:'',grade:null,remarks:''}]
+  };
+
+  populateData(data);
+
+  const sheet=document.getElementById('sheet');
+  // Read-only (preview/print/student): disable everything
+  if(readOnly && sheet){
+    sheet.querySelectorAll('input,select,textarea').forEach(el=>el.setAttribute('disabled',''));
+    sheet.querySelectorAll('.add-row-btn,.row-del,.crest-wrap,.sign-area').forEach(el=>{
+      el.onclick=null;el.style.cursor='default';
+      if(el.classList.contains('add-row-btn'))el.style.display='none';
+    });
+  }
+  // Edit mode: scores/grades always come from Subject Teacher entries, never
+  // hand-typed here by admin or class teacher — lock the grades table & the
+  // ability to add/remove subject rows.
+  if(!readOnly && sheet){
+    sheet.querySelectorAll('#gradesBody input,#gradesBody select').forEach(el=>el.setAttribute('disabled',''));
+    sheet.querySelectorAll('.add-row-btn,.row-del').forEach(el=>{el.style.display='none';});
+    // Class teacher: view only, except their own comment field
+    if(currentUser&&currentUser.role==='classteacher'){
+      sheet.querySelectorAll('input,select,textarea').forEach(el=>{
+        if(el.id!=='teacherComment') el.setAttribute('disabled','');
+      });
+      sheet.querySelectorAll('.crest-wrap,.sign-area').forEach(el=>{el.onclick=null;el.style.cursor='default';});
+    }
+  }
+}
+
+let currentCardId=null;
+function populateData(d){
+  const q=id=>document.getElementById(id);
+  if(q('schoolName')) q('schoolName').value=d.schoolName||"St Joseph's Senior Secondary School";
+  if(q('schoolAddress')) q('schoolAddress').value=d.schoolAddress||'';
+  if(q('schoolContact')) q('schoolContact').value=d.schoolContact||'';
+  if(q('studentName')) q('studentName').value=d.studentName||'';
+  if(q('admissionNo')) q('admissionNo').value=d.admissionNo||'';
+  if(q('academicYear')) q('academicYear').value=d.academicYear||'';
+  if(q('issueDate')) q('issueDate').value=d.issueDate||'';
+  if(q('term')) q('term').value=d.term||'';
+  if(q('studentClass')) q('studentClass').value=d.studentClass||'';
+  if(q('classTeacherName')) q('classTeacherName').value=d.classTeacherName||'';
+  if(q('resultText')) q('resultText').value=d.resultText||'Ordinary Pass';
+  if(q('teacherComment')) q('teacherComment').value=d.teacherComment||'';
+  if(q('headTeacherComment')) q('headTeacherComment').value=d.headTeacherComment||'';
+  if(q('principalSign')) q('principalSign').value=d.principalSign||'';
+
+  const pImg=q('principalSigImg');
+  const pPh=q('principalSigPlaceholder');
+  const pTxt=q('principalSign');
+  const sigSrc=getGlobalSig()||d.principalSigImg||null;
+  if(pImg&&pPh){
+    if(sigSrc){pImg.src=sigSrc;pImg.style.display='block';pPh.style.display='none';if(pTxt)pTxt.style.display='none';}
+    else{pImg.src='';pImg.style.display='none';pPh.style.display='block';if(pTxt)pTxt.style.display='block';}
+  }
+
+  if(d.gradingScale&&d.gradingScale.length) gradingScale=d.gradingScale;
+  const gb=q('gradesBody');
+  if(gb){
+    gb.innerHTML='';
+    (d.subjects||[]).forEach(s=>addSubjectRow(s.subject,s.score,s.grade,s.remarks));
+    if(!d.subjects||!d.subjects.length) addSubjectRow();
+  }
+  updateSummary();
+  if(q('issueDate')) q('issueDate').addEventListener('change',updateSummary);
+}
+
+function rowTemplate(subject="",score="",grade=null,remarks=""){
+  const g=grade||computeGrade(score)||(gradingScale[0]?.label||"");
+  const rm=remarks||(g?computeRemark(g):"");
+  return `<tr>
+    <td style="text-align:left"><input value="${subject}" placeholder="Subject name"></td>
+    <td><input type="number" min="0" max="100" value="${score}" placeholder="—" oninput="onScoreInput(this)"></td>
+    <td><select onchange="onGradeChange(this)">${gradeOptions(g)}</select></td>
+    <td style="text-align:left"><input value="${remarks||rm}" placeholder="Remarks"></td>
+    <td class="del-col"><button class="row-del" onclick="removeRow(this)">✕</button></td>
+  </tr>`;
+}
+function onScoreInput(input){
+  const row=input.closest('tr');
+  const sel=row.querySelector('select');
+  const g=computeGrade(input.value);
+  if(g){sel.value=g;row.querySelectorAll('td')[3].querySelector('input').value=computeRemark(g);}
+  updateSummary();
+}
+function onGradeChange(sel){
+  const row=sel.closest('tr');
+  row.querySelectorAll('td')[3].querySelector('input').value=computeRemark(sel.value);
+  updateSummary();
+}
+function addSubjectRow(subject="",score="",grade=null,remarks=""){
+  const gb=document.getElementById('gradesBody');
+  if(gb) gb.insertAdjacentHTML('beforeend',rowTemplate(subject,score,grade,remarks));
+  updateSummary();
+}
+function removeRow(btn){btn.closest('tr').remove();updateSummary();}
+function updateSummary(){
+  const rows=document.querySelectorAll('#gradesBody tr');
+  let total=0,count=0;
+  rows.forEach(r=>{const v=r.querySelector('input[type="number"]').value;if(v!==''){total+=parseFloat(v);count++;}});
+  const avg=count?(total/count).toFixed(2):null;
+  const ad=document.getElementById('avgDisplay');
+  if(ad) ad.textContent=avg?avg+'%':'—';
+  const d=document.getElementById('issueDate');
+  if(d&&d.value){const dt=new Date(d.value+'T12:00:00');const idd=document.getElementById('issueDateDisplay');if(idd)idd.textContent=dt.toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'});}
+}
+
+/* ── Save/Load report cards ── */
+function collectData(){
+  const subjects=[];
+  document.querySelectorAll('#gradesBody tr').forEach(row=>{
+    const ins=row.querySelectorAll('input');
+    subjects.push({subject:ins[0].value,score:ins[1].value,grade:row.querySelector('select').value,remarks:ins[2].value});
+  });
+  const pImg=document.getElementById('principalSigImg');
+  const q=id=>document.getElementById(id);
+  return {
+    id:currentCardId,
+    schoolName:q('schoolName')?.value||'',
+    schoolAddress:q('schoolAddress')?.value||'',
+    schoolContact:q('schoolContact')?.value||'',
+    studentName:q('studentName')?.value||'',
+    admissionNo:q('admissionNo')?.value||'',
+    academicYear:q('academicYear')?.value||'',
+    issueDate:q('issueDate')?.value||'',
+    term:q('term')?.value||'',
+    studentClass:q('studentClass')?.value||'',
+    classTeacherName:q('classTeacherName')?.value||'',
+    subjects,gradingScale,
+    resultText:q('resultText')?.value||'',
+    teacherComment:q('teacherComment')?.value||'',
+    headTeacherComment:q('headTeacherComment')?.value||'',
+    principalSign:q('principalSign')?.value||'',
+    principalSigImg:pImg&&pImg.src&&pImg.style.display!=='none'?pImg.src:null,
+    savedAt:new Date().toISOString()
+  };
+}
+
+function saveReport(){
+  if(currentUser&&currentUser.role==='classteacher'){
+    const comment=(document.getElementById('teacherComment')||{value:''}).value.trim();
+    const tc=getTComments();
+    tc[currentBuilderStudentId]=comment;
+    lsSet(K.teacherComments,tc);
+    showToast('Comment saved ✓');
+    return;
+  }
+  const data=collectData();
+  if(!data.studentName.trim()){showToast("Enter the student's name first.");return;}
+  let list=getSavedCards();
+  if(currentCardId){const i=list.findIndex(r=>r.id===currentCardId);if(i>-1)list[i]=data;else list.push(data);}
+  else{data.id='r_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);currentCardId=data.id;list.push(data);}
+  lsSet(K.reportCards,list);showToast("Saved ✓");
+}
+
+function openLoadModal(){renderSavedList();openModal('loadModalBackdrop');}
+function renderSavedList(){
+  const list=getSavedCards().sort((a,b)=>new Date(b.savedAt)-new Date(a.savedAt));
+  const c=document.getElementById('savedReportsList');
+  if(!list.length){c.innerHTML='<div class="empty-state">No saved reports.</div>';return;}
+  c.innerHTML=list.map(r=>`<div class="saved-item">
+    <div class="info" onclick="loadReportCard('${r.id}')">
+      <strong>${r.studentName||'Unnamed'}</strong>
+      <div class="meta">${r.studentClass||''} · ${r.term||''} · ${new Date(r.savedAt).toLocaleString()}</div>
+    </div>
+    <button onclick="deleteSavedCard('${r.id}')">✕</button>
+  </div>`).join('');
+}
+function loadReportCard(id){
+  const data=getSavedCards().find(r=>r.id===id);if(!data)return;
+  currentCardId=data.id;populateData(data);closeModal('loadModalBackdrop');
+}
+function deleteSavedCard(id){
+  showConfirm("Delete this saved report?",()=>{
+    lsSet(K.reportCards,getSavedCards().filter(r=>r.id!==id));
+    if(currentCardId===id)currentCardId=null;
+    renderSavedList();
+  });
+}
+
+/* ── Grading scale modal ── */
+function openScaleModal(){renderScaleRows();openModal('scaleModalBackdrop');}
+function scaleRowTemplate(g){return `<div class="scale-row">
+  <input class="scale-label" value="${g.label||''}" placeholder="A1">
+  <input class="scale-min" type="number" value="${g.min!==undefined?g.min:''}" placeholder="Min">
+  <span>–</span>
+  <input class="scale-max" type="number" value="${g.max!==undefined?g.max:''}" placeholder="Max">
+  <button onclick="this.closest('.scale-row').remove()">✕</button>
+</div>`;}
+function renderScaleRows(){document.getElementById('scaleRows').innerHTML=gradingScale.map(scaleRowTemplate).join('');}
+function addScaleRow(){document.getElementById('scaleRows').insertAdjacentHTML('beforeend',scaleRowTemplate({label:'',min:'',max:''}));}
+function saveScale(){
+  const rows=document.querySelectorAll('#scaleRows .scale-row');
+  const ns=[];
+  rows.forEach(r=>{
+    const label=r.querySelector('.scale-label').value.trim();
+    const min=parseFloat(r.querySelector('.scale-min').value);
+    const max=parseFloat(r.querySelector('.scale-max').value);
+    if(label&&!isNaN(min)&&!isNaN(max))ns.push({label,min,max});
+  });
+  if(!ns.length){showToast("Add at least one grade level.");return;}
+  ns.sort((a,b)=>b.min-a.min);gradingScale=ns;
+  document.querySelectorAll('#gradesBody tr').forEach(row=>{
+    const si=row.querySelector('input[type="number"]');
+    const sel=row.querySelector('select');
+    const g=computeGrade(si.value)||gradingScale[0].label;
+    sel.innerHTML=gradeOptions(g);
+  });
+  closeModal('scaleModalBackdrop');showToast('Grading scale updated ✓');
+}
+
+/* ── Global signature ── */
+function getGlobalSig(){try{return localStorage.getItem(K.globalSig)||null;}catch(e){return null;}}
+function setGlobalSig(dataUrl){try{localStorage.setItem(K.globalSig,dataUrl);}catch(e){}}
+function removeGlobalSig(){try{localStorage.removeItem(K.globalSig);}catch(e){}}
+
+function openSettingsModal(){
+  const sig=getGlobalSig();
+  const cfg=getSettings();
+  const img=document.getElementById('settingsSigImg');
+  const ph=document.getElementById('settingsSigPlaceholder');
+  if(sig){img.src=sig;img.style.display='block';ph.style.display='none';}
+  else{img.style.display='none';ph.style.display='block';}
+  document.getElementById('cfgSchoolName').value=cfg.schoolName||'';
+  document.getElementById('cfgSchoolAddress').value=cfg.schoolAddress||'';
+  document.getElementById('cfgSchoolContact').value=cfg.schoolContact||'';
+  openModal('settingsModalBackdrop');
+}
+function saveSettings(){
+  const cfg=getSettings();
+  cfg.schoolName=document.getElementById('cfgSchoolName').value.trim();
+  cfg.schoolAddress=document.getElementById('cfgSchoolAddress').value.trim();
+  cfg.schoolContact=document.getElementById('cfgSchoolContact').value.trim();
+  lsSet(K.settings,cfg);
+  closeModal('settingsModalBackdrop');
+  showToast('Settings saved ✓');
+}
+function clearGlobalSig(){
+  removeGlobalSig();
+  const img=document.getElementById('settingsSigImg');
+  const ph=document.getElementById('settingsSigPlaceholder');
+  if(img) img.style.display='none';
+  if(ph) ph.style.display='block';
+  applyGlobalSigToSheet();
+  showToast('Signature removed');
+}
+function applyGlobalSigToSheet(){
+  const sig=getGlobalSig();
+  const img=document.getElementById('principalSigImg');
+  const ph=document.getElementById('principalSigPlaceholder');
+  const txt=document.getElementById('principalSign');
+  if(!img||!ph) return;
+  if(sig){img.src=sig;img.style.display='block';ph.style.display='none';if(txt)txt.style.display='none';}
+  else{img.src='';img.style.display='none';ph.style.display='block';if(txt)txt.style.display='block';}
+}
+
+function handleSettingsSigUpload(e){
+  const file=e.target.files[0];if(!file)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    const dataUrl=ev.target.result;
+    setGlobalSig(dataUrl);
+    const img=document.getElementById('settingsSigImg');
+    const ph=document.getElementById('settingsSigPlaceholder');
+    if(img){img.src=dataUrl;img.style.display='block';}
+    if(ph)ph.style.display='none';
+    applyGlobalSigToSheet();
+    showToast('Principal signature saved ✓');
+  };
+  r.readAsDataURL(file);
+}
+
+function handleLogoUpload(e){
+  const file=e.target.files[0];if(!file)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    const ci=document.getElementById('crestImg');
+    const cp=document.getElementById('crestPlaceholder');
+    if(ci){ci.src=ev.target.result;ci.style.display='block';}
+    if(cp)cp.style.display='none';
+  };
+  r.readAsDataURL(file);
+}
+
+function handleSigUpload(e,role){
+  const file=e.target.files[0];if(!file)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    if(role==='principal'){
+      const img=document.getElementById('principalSigImg');
+      if(img){img.src=ev.target.result;img.style.display='block';}
+      const ph=document.getElementById('principalSigPlaceholder');
+      if(ph)ph.style.display='none';
+      const pt=document.getElementById('principalSign');
+      if(pt)pt.style.display='none';
+    }
+  };
+  r.readAsDataURL(file);
+}
+
+/* ── PDF ── */
+function pdfFileName(){
+  const name=(document.getElementById('studentName')?.value||'Report_Card').trim().replace(/\s+/g,'_');
+  const term=(document.getElementById('term')?.value||'').trim().replace(/\s+/g,'_');
+  return `${name}${term?'_'+term:''}_ReportCard.pdf`;
+}
+async function generatePdfBlob(){
+  const sheet=document.getElementById('sheet');
+  document.body.classList.add('pdf-mode');
+  let canvas;
+  try{canvas=await html2canvas(sheet,{scale:2,useCORS:true,backgroundColor:'#ffffff'});}
+  finally{document.body.classList.remove('pdf-mode');}
+  const imgData=canvas.toDataURL('image/jpeg',0.95);
+  const{jsPDF}=window.jspdf;
+  const pdf=new jsPDF({unit:'pt',format:'a4'});
+  const pageW=pdf.internal.pageSize.getWidth();
+  const pageH=pdf.internal.pageSize.getHeight();
+  const imgW=pageW;
+  const imgH=(canvas.height*imgW)/canvas.width;
+  let heightLeft=imgH,position=0;
+  pdf.addImage(imgData,'JPEG',0,position,imgW,imgH);
+  heightLeft-=pageH;
+  while(heightLeft>0){position=heightLeft-imgH;pdf.addPage();pdf.addImage(imgData,'JPEG',0,position,imgW,imgH);heightLeft-=pageH;}
+  return pdf.output('blob');
+}
+async function downloadPDF(){
+  const btn=document.getElementById('downloadBtn');
+  const overlay=document.getElementById('pdfOverlay');
+  overlay.classList.add('open');
+  if(btn)btn.disabled=true;
+  try{
+    const blob=await generatePdfBlob();
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download=pdfFileName();
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url),3000);
+  }catch(err){showToast('Could not generate PDF: '+err.message,4000);}
+  finally{overlay.classList.remove('open');if(btn)btn.disabled=false;}
+}
+
+/* ── Gmail ── */
+function openGmailModal(){
+  const q=id=>document.getElementById(id)?.value||'';
+  const name=q('studentName')||'Student';
+  const cls=q('studentClass');const term=q('term');const year=q('academicYear');
+  const avg=document.getElementById('avgDisplay')?.textContent||'';
+  const result=q('resultText');const school=q('schoolName');
+  document.getElementById('gmailSubject').value=`${school} – Report Card: ${name} ${term} ${year}`.trim();
+  document.getElementById('gmailBody').value=`Dear Parent/Guardian,\n\nPlease find attached the academic report card for ${name} (${cls}) for ${term}, ${year}.\n\nResult: ${result}\nAverage Score: ${avg}\n\nKindly review and feel free to contact us.\n\nWarm regards,\n${school}`;
+  openModal('gmailModalBackdrop');
+}
+function openGmail(){
+  const to=encodeURIComponent(document.getElementById('gmailTo').value.trim());
+  const cc=encodeURIComponent(document.getElementById('gmailCc').value.trim());
+  const su=encodeURIComponent(document.getElementById('gmailSubject').value);
+  const bo=encodeURIComponent(document.getElementById('gmailBody').value);
+  downloadPDF();
+  window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${to}&cc=${cc}&su=${su}&body=${bo}`,'_blank');
+  closeModal('gmailModalBackdrop');
+}
+
+/* ── WhatsApp ── */
+function openWhatsAppModal(){
+  const q=id=>document.getElementById(id)?.value||'';
+  const name=q('studentName')||'Student';
+  const cls=q('studentClass');const term=q('term');const year=q('academicYear');
+  const avg=document.getElementById('avgDisplay')?.textContent||'';
+  const result=q('resultText');const school=q('schoolName');
+  document.getElementById('waBody').value=`${school} – Report Card\nStudent: ${name} (${cls})\nTerm: ${term} ${year}\nResult: ${result}\nAverage: ${avg}\n\nPlease find the attached report card PDF.`;
+  openModal('whatsappModalBackdrop');
+}
+async function sendWhatsApp(){
+  const phoneRaw=document.getElementById('waPhone').value.trim().replace(/[^0-9]/g,'');
+  const text=encodeURIComponent(document.getElementById('waBody').value);
+  const base=phoneRaw?`https://wa.me/${phoneRaw}`:`https://wa.me/`;
+  await downloadPDF();
+  window.open(`${base}?text=${text}`,'_blank');
+  closeModal('whatsappModalBackdrop');
+}
+
+/* ═══════════════════════════════════════════════════
+   CRUD: USERS  (Firebase Auth account + Firestore profile)
+═══════════════════════════════════════════════════ */
+let editingUserId=null;
+function openAddUser(){
+  editingUserId=null;
+  document.getElementById('userModalTitle').textContent='Add User';
+  document.getElementById('uFullName').value='';
+  document.getElementById('uUsername').value='';
+  document.getElementById('uPassword').value='';
+  document.getElementById('uPassword').placeholder='Password';
+  document.getElementById('uRole').value='classteacher';
+  document.getElementById('uSubject').value='';
+  populateClassSelect('uClass');
+  updateUserRoleFields();
+  openModal('userModalBackdrop');
+}
+function openEditUser(id){
+  editingUserId=id;
+  const u=getUsers().find(x=>x.id===id);if(!u)return;
+  document.getElementById('userModalTitle').textContent='Edit User';
+  document.getElementById('uFullName').value=u.fullName||'';
+  document.getElementById('uUsername').value=u.username||'';
+  document.getElementById('uUsername').setAttribute('disabled','');
+  document.getElementById('uPassword').value='';
+  document.getElementById('uPassword').placeholder='Leave blank to keep current password';
+  document.getElementById('uRole').value=u.role||'viewer';
+  document.getElementById('uSubject').value=u.assignedSubject||'';
+  populateClassSelect('uClass',u.assignedClass);
+  updateUserRoleFields();
+  openModal('userModalBackdrop');
+}
+function updateUserRoleFields(){
+  const role=document.getElementById('uRole').value;
+  document.getElementById('uClassRow').style.display=(role==='classteacher'||role==='subjectteacher')?'block':'none';
+  document.getElementById('uSubjectRow').style.display=role==='subjectteacher'?'block':'none';
+}
+document.getElementById('uRole').addEventListener('change',updateUserRoleFields);
+
+async function saveUser(){
+  const fullName=document.getElementById('uFullName').value.trim();
+  const username=document.getElementById('uUsername').value.trim();
+  const password=document.getElementById('uPassword').value.trim();
+  const role=document.getElementById('uRole').value;
+  const assignedClass=document.getElementById('uClass').value||'';
+  const assignedSubject=document.getElementById('uSubject').value.trim()||'';
+  if(!fullName||!username){showToast('Please fill all required fields.');return;}
+  const profile={fullName,username,role,assignedClass,assignedSubject};
+  try{
+    if(editingUserId){
+      await db.collection('users').doc(editingUserId).set(profile,{merge:true});
+      document.getElementById('uUsername').removeAttribute('disabled');
+    } else {
+      if(!password){showToast('Password is required for a new user.');return;}
+      if(getUsers().find(u=>u.username===username)){showToast('Username already exists.');return;}
+      const cred=await getSecondaryAuth().createUserWithEmailAndPassword(username+'@'+STAFF_DOMAIN,password);
+      await getSecondaryAuth().signOut();
+      await db.collection('users').doc(cred.user.uid).set(profile);
+    }
+    closeModal('userModalBackdrop');
+    renderPanel('Users');showToast('User saved ✓');
+  }catch(e){
+    showToast('Error: '+e.message);
+  }
+}
+function deleteUser(id){
+  showConfirm('Delete this user? (Their login account stays, but they lose access — contact Firebase console to fully remove the auth account.)',async()=>{
+    await db.collection('users').doc(id).delete();
+    renderPanel('Users');showToast('User removed');
+  });
+}
+
+/* ═══════════════════════════════════════════════════
+   CRUD: CLASSES
+═══════════════════════════════════════════════════ */
+let editingClassId=null;
+function openAddClass(){
+  editingClassId=null;
+  document.getElementById('classModalTitle').textContent='Add Class';
+  document.getElementById('cName').value='';
+  populateTeacherSelect('cTeacher');
+  openModal('classModalBackdrop');
+}
+function openEditClass(id){
+  editingClassId=id;
+  const cl=getClasses().find(c=>c.id===id);if(!cl)return;
+  document.getElementById('classModalTitle').textContent='Edit Class';
+  document.getElementById('cName').value=cl.name||'';
+  populateTeacherSelect('cTeacher',cl.teacherId);
+  openModal('classModalBackdrop');
+}
+function saveClass(){
+  const name=document.getElementById('cName').value.trim();
+  const teacherId=document.getElementById('cTeacher').value||'';
+  if(!name){showToast('Enter a class name.');return;}
+  const classes=getClasses();
+  if(editingClassId){const i=classes.findIndex(c=>c.id===editingClassId);if(i>-1)classes[i]={...classes[i],name,teacherId};}
+  else classes.push({id:'c'+Date.now(),name,teacherId});
+  lsSet(K.classes,classes);closeModal('classModalBackdrop');renderPanel('Classes');showToast('Class saved ✓');
+}
+function deleteClass(id){
+  showConfirm('Delete this class? Students will be unassigned.',()=>{
+    lsSet(K.classes,getClasses().filter(c=>c.id!==id));
+    const students=getStudents().map(s=>s.classId===id?{...s,classId:''}:s);
+    lsSet(K.students,students);
+    renderPanel('Classes');showToast('Class deleted');
+  });
+}
+
+/* ═══════════════════════════════════════════════════
+   CRUD: STUDENTS  (Firestore collection + login code)
+═══════════════════════════════════════════════════ */
+let editingStudentId=null;
+function openAddStudent(){
+  editingStudentId=null;
+  document.getElementById('studentModalTitle').textContent='Add Student';
+  document.getElementById('stName').value='';
+  document.getElementById('stAdm').value='';
+  populateClassSelect('stClass');
+  openModal('studentModalBackdrop');
+}
+function openEditStudent(id){
+  editingStudentId=id;
+  const s=getStudents().find(x=>x.id===id);if(!s)return;
+  document.getElementById('studentModalTitle').textContent='Edit Student';
+  document.getElementById('stName').value=s.name||'';
+  document.getElementById('stAdm').value=s.admNo||'';
+  populateClassSelect('stClass',s.classId);
+  openModal('studentModalBackdrop');
+}
+async function saveStudent(){
+  const name=document.getElementById('stName').value.trim();
+  const admNo=document.getElementById('stAdm').value.trim();
+  const classId=document.getElementById('stClass').value||'';
+  if(!name){showToast('Enter student name.');return;}
+  try{
+    if(editingStudentId){
+      await db.collection('students').doc(editingStudentId).set({name,admNo,classId},{merge:true});
+    } else {
+      await db.collection('students').add({name,admNo,classId,code:''});
+    }
+    closeModal('studentModalBackdrop');renderPanel('Students');showToast('Student saved ✓');
+  }catch(e){ showToast('Error: '+e.message); }
+}
+function deleteStudent(id){
+  showConfirm('Delete this student? Their login code (if any) will stop working.',async()=>{
+    await db.collection('students').doc(id).delete();
+    renderPanel('Students');showToast('Student deleted');
+  });
+}
+
+/* ── Unique student login code ── */
+function genStudentCode(admNo){
+  const rand=Math.floor(1000+Math.random()*9000);
+  const base=(admNo||'SJ').replace(/[^A-Za-z0-9]/g,'').slice(-4).toUpperCase()||'STU';
+  return `${base}-${rand}`;
+}
+async function generateStudentLogin(id){
+  const s=getStudents().find(x=>x.id===id);if(!s)return;
+  if(s.code){
+    showConfirm(`This student already has the code ${s.code}. Generate a new one? The old code will stop working.`,()=>doGenerateStudentLogin(s));
+  } else {
+    doGenerateStudentLogin(s);
+  }
+}
+async function doGenerateStudentLogin(s){
+  const code=genStudentCode(s.admNo);
+  const email=code.toLowerCase()+'@'+STUDENT_DOMAIN;
+  const password=studentPassword(code);
+  try{
+    const cred=await getSecondaryAuth().createUserWithEmailAndPassword(email,password);
+    await getSecondaryAuth().signOut();
+    await db.collection('users').doc(cred.user.uid).set({role:'student',studentId:s.id,fullName:s.name});
+    await db.collection('students').doc(s.id).set({code},{merge:true});
+    showToast(`Login code generated: ${code}`,4000);
+    renderPanel('Students');
+  }catch(e){ showToast('Error: '+e.message); }
+}
+
+/* ═══════════════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════════════ */
+function populateClassSelect(selectId,selectedId){
+  const sel=document.getElementById(selectId);if(!sel)return;
+  sel.innerHTML='<option value="">-- None --</option>'+
+    getClasses().map(c=>`<option value="${c.id}"${c.id===selectedId?' selected':''}>${c.name}</option>`).join('');
+}
+function populateTeacherSelect(selectId,selectedId){
+  const sel=document.getElementById(selectId);if(!sel)return;
+  const teachers=getUsers().filter(u=>u.role==='classteacher');
+  sel.innerHTML='<option value="">-- None --</option>'+
+    teachers.map(t=>`<option value="${t.id}"${t.id===selectedId?' selected':''}>${t.fullName}</option>`).join('');
+}
+
+/* ── Modal helpers ── */
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+
+/* ── Confirm ── */
+function showConfirm(message,onYes){
+  document.getElementById('confirmMessage').textContent=message;
+  const oldBtn=document.getElementById('confirmYesBtn');
+  const newBtn=oldBtn.cloneNode(true);
+  oldBtn.parentNode.replaceChild(newBtn,oldBtn);
+  newBtn.addEventListener('click',()=>{closeConfirmModal();onYes();});
+  openModal('confirmModalBackdrop');
+}
+function closeConfirmModal(){closeModal('confirmModalBackdrop');}
+
+/* ── Toast ── */
+function showToast(msg,ms=2400){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(t._timer);t._timer=setTimeout(()=>t.classList.remove('show'),ms);
+}
+
+/* ── Close modal on backdrop click ── */
+document.querySelectorAll('.modal-backdrop').forEach(el=>{
+  el.addEventListener('click',e=>{if(e.target===el)el.classList.remove('open');});
+});
+
+/* ── Auto-login if session exists ── */
+if(currentUser){showPortal();}
+</script>
+</body>
+</html>
